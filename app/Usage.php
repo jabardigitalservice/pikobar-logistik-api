@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class for storing all method & data regarding item usage information, which 
+ * Class for storing all method & data regarding item usage information, which
  * are retrieved from Pelaporan API
  */
 
@@ -14,7 +14,7 @@ class Usage
 {
     static $client=null;
 
-    static function getClient() 
+    static function getClient()
     {
         if (static::$client == null) {
             static::$client = new GuzzleHttp\Client();
@@ -22,6 +22,7 @@ class Usage
 
         return static::$client;
     }
+
     /**
      * Request authorization token from pelaporan API
      *
@@ -42,6 +43,29 @@ class Usage
             return [ response()->format(500, 'Internal server error'), null ];
         }
         return json_decode($res->getBody())->data->token;
+    }
+
+    /**
+     * Request authorization token from pelaporan API
+     *
+     * @return Array [ error, result_array ]
+     */
+    static function getPelaporanData($url)
+    {
+        $token = static::getPelaporanAuthToken();
+        $res = static::getClient()->get($url, [
+            'verify' => false,
+            'headers' => [
+                'Authorization' => "Bearer $token",
+            ],
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+            error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
+            return [ response()->format(500, 'Internal server error'), null ];
+        } else {
+            return [ null, json_decode($res->getBody())->data ];
+        }
     }
 
     /**
@@ -77,22 +101,8 @@ class Usage
      */
     static function getRdtResultSummary($city_code)
     {
-        $token = static::getPelaporanAuthToken();
         $url = env('PELAPORAN_API_BASE_URL') . '/api/rdt/summary-result-by-cities?city_code=' . $city_code;
-        $res = static::getClient()->get($url, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => "Bearer $token",
-            ],
-        ]);
-
-        if ($res->getStatusCode() != 200) {
-            error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
-        } else {
-            // Extract the data
-            return [ null, json_decode($res->getBody())->data ];
-        }
+        return $this->getPelaporanData($url)
     }
 
     /**
@@ -102,22 +112,8 @@ class Usage
      */
     static function getRdtResultList($city_code)
     {
-        $token = static::getPelaporanAuthToken();
         $url = env('PELAPORAN_API_BASE_URL') . '/api/rdt/summary-result-list-by-cities?city_code=' . $city_code;
-        $res = Usage::getClient()->get($url, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => "Bearer $token",
-            ],
-        ]);
-
-        if ($res->getStatusCode() != 200) {
-            error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
-        } else {
-            // Extract the data
-            return [ null, json_decode($res->getBody())->data ];
-        }
+        return $this->getPelaporanData($url)
     }
 
     /**
@@ -199,13 +195,13 @@ class Usage
         $apiKey = env('WMS_JABAR_API_KEY');
         $apiLink = env('WMS_JABAR_BASE_URL');
         $apiFunction = '/api/material';
-        $url = $apiLink . $apiFunction; 
+        $url = $apiLink . $apiFunction;
         $res = static::getClient()->get($url, [
             'headers' => [
                 'accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                'api-key' => $apiKey, 
-            ], 
+                'api-key' => $apiKey,
+            ],
         ]);
 
         if ($res->getStatusCode() != 200) {
@@ -227,12 +223,12 @@ class Usage
         $apiKey = env('WMS_JABAR_API_KEY');
         $apiLink = env('WMS_JABAR_BASE_URL');
         $apiFunction = '/api/soh_fmaterial';
-        $url = $apiLink . $apiFunction; 
+        $url = $apiLink . $apiFunction;
         $res = static::getClient()->get($url, [
             'headers' => [
                 'accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                'api-key' => $apiKey, 
+                'api-key' => $apiKey,
             ],
             'body' => $param
         ]);
