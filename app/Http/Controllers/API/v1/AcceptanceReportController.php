@@ -26,19 +26,15 @@ class AcceptanceReportController extends Controller
     public function index(Request $request)
     {
         $limit = $request->input('limit', 10);
-        $request->request->add(['verification_status' => Applicant::STATUS_VERIFIED]);
-        $request->request->add(['approval_status' => Applicant::STATUS_APPROVED]);
-        $request->request->add(['finalized_by' => Applicant::STATUS_FINALIZED]);
-
         $data = Agency::select('agency.id', 'agency.created_at')
-            ->with(['applicant', 'AcceptanceReport']);
-        $data = Agency::whereHasApplicant($data, $request)
-            ->leftJoin('acceptance_reports', 'agency.id', '=', 'acceptance_reports.agency_id')
-            ->searchReport($request)
-            ->orderBy('acceptance_reports.date', 'desc')
-            ->orderBy('agency.id', 'asc')
-            ->groupBy('acceptance_reports.agency_id', 'agency.id', 'agency.created_at', 'acceptance_reports.date')
-            ->paginate($limit);
+                        ->final()
+                        ->with('applicant', 'AcceptanceReport')
+                        ->leftJoin('acceptance_reports', 'agency.id', '=', 'acceptance_reports.agency_id')
+                        ->searchReport($request)
+                        ->orderBy('acceptance_reports.date', 'desc')
+                        ->orderBy('agency.id', 'asc')
+                        ->groupBy('acceptance_reports.agency_id', 'agency.id', 'agency.created_at', 'acceptance_reports.date')
+                        ->paginate($limit);
 
         return response()->json($data);
     }
@@ -142,5 +138,16 @@ class AcceptanceReportController extends Controller
         ->get();
         $response = response()->format(Response::HTTP_OK, 'success', $data);
         return $response;
+    }
+
+    public function statistic(Request $request)
+    {
+        $alreadyReportedTotal = Agency::final()->has('acceptanceReport')->count();
+        $notYetReportedTotal = Agency::final()->doesntHave('acceptanceReport')->count();
+        $statistic = [
+            'already_reported_total' => $alreadyReportedTotal,
+            'not_yet_reported_total' => $notYetReportedTotal
+        ];
+        return response()->format(Response::HTTP_OK, 'success', $statistic);
     }
 }
