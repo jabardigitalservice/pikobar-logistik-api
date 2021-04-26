@@ -133,6 +133,13 @@ class Agency extends Model
         });
     }
 
+    public function scopeFinal($query)
+    {
+        return $query->whereHas('applicant', function ($query) {
+            $query->whereNotNull('finalized_by')->where('is_deleted', '!=' , 1);
+        });
+    }
+
     /**
      * Search Report Scope function
      *
@@ -144,7 +151,7 @@ class Agency extends Model
      */
     public function scopeSearchReport($query, $request)
     {
-        return $query->when($request->has('search'), function ($query) use ($request) {
+        $query->when($request->has('search'), function ($query) use ($request) {
             $query->where(function ($query) use ($request) {
                 $query->where('agency.id', 'LIKE', "%{$request->input('search')}%")
                       ->orWhereHas('applicant', function ($query) use ($request) {
@@ -152,6 +159,20 @@ class Agency extends Model
                 });
             });
         });
+
+        $query->when($request->input('start_date') && $request->input('end_date'), function ($query) use ($request) {
+            $query->whereBetween('acceptance_reports.date', [$request->input('start_date'), $request->input('end_date')]);
+        });
+
+        $query->when($request->has('status'), function ($query) use ($request) {
+            $query->when($request->input('status') == 1, function ($query) use ($request) {
+                $query->has('acceptanceReport');
+            }, function ($query) {
+                $query->doesntHave('acceptanceReport');
+            });
+        });
+
+        return $query;
     }
 
     static function whereStatusCondition($data, $request)
