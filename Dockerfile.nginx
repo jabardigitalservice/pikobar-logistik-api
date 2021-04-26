@@ -32,6 +32,7 @@ RUN apk add \
         php7-xmlreader \
         php7-zip \
         php7-zlib \
+        php7-sqlite3 \
         npm
 
 
