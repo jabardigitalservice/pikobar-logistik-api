@@ -61,10 +61,6 @@ RUN chown -R nobody.nobody /var/www/html && \
   chown -R nobody.nobody /var/lib/nginx && \
   chown -R nobody.nobody /var/log/nginx
 
-# Fixing ssh2.so not found
-#RUN mv /etc/php7/conf.d/ssh2.ini /etc/php7/conf.d/ssh2.old
-
-
 # Switch to use a non-root user from here on
 USER nobody
 
@@ -75,8 +71,6 @@ COPY --chown=nobody . /var/www/html/
 
 
 RUN composer install
-
-#RUN php artisan storage:link
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
