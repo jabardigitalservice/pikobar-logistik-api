@@ -32,8 +32,7 @@ RUN apk add \
         php7-xmlreader \
         php7-zip \
         php7-zlib \
-        php7-sqlite3 \
-        php7-pdo_sqlite \
+        php7-pdo_mysql \
         npm
 
 
@@ -84,5 +83,5 @@ RUN php artisan storage:link
 EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
-ENTRYPOINT [ "docker/docker-entrypoint.sh" ]
-#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+#ENTRYPOINT [ "docker/docker-entrypoint.sh" ]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
