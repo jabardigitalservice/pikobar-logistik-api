@@ -84,5 +84,5 @@ RUN php artisan storage:link
 EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
-#ENTRYPOINT [ "docker/docker-entrypoint.sh" ]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT [ "docker/docker-entrypoint.sh" ]
+#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

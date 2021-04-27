@@ -18,5 +18,5 @@ php artisan migrate --no-interaction -vvv --force
 
 echo "done!"
 
-printf "\nstart apache2...\n"
-apache2ctl -D FOREGROUND
+#printf "\nstart apache2...\n"
+#apache2ctl -D FOREGROUND
