@@ -28,8 +28,7 @@ RUN apk add \
         php7-pdo_mysql \ 
         php7-pdo_sqlite \
 	php7-zip \
-        php7-zlib \
-        npm
+        php7-zlib 
 
 
 # https://github.com/codecasts/php-alpine/issues/21
