@@ -18,7 +18,8 @@ RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
 RUN apk add composer
 RUN apk add \
 		nano \
-        php7-mbstring \
+        php7-dom \
+	php7-mbstring \
         php7-pdo_mysql \ 
         php7-pdo_sqlite \
         npm
