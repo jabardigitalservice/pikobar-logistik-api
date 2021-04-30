@@ -19,6 +19,7 @@ RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
 RUN apk add \
 		nano \
 	php7-ctype \
+        php7-phar \
 	php7-curl \
         php7-dom \
 	php7-mbstring \
