@@ -46,7 +46,7 @@ RUN mkdir -p /var/www/html
 RUN chown -R nobody.nobody /var/www/html && \
   chown -R nobody.nobody /run && \
   chown -R nobody.nobody /var/lib/nginx && \
-  chown -R nobody.nobody /var/log/nginx
+  chown -R nobody.nobody /var/log/nginx 
 
 # Switch to use a non-root user from here on
 USER nobody
@@ -54,7 +54,7 @@ USER nobody
 # Add application
 WORKDIR /var/www/html
 COPY --chown=nobody . /var/www/html/
-COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
+COPY --from=composer:2.0.12 /usr/bin/composer /usr/local/bin/composer
 
 #COPY --chown=nobody .env-local /var/www/html/.env
 
