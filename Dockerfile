@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.13
 
 LABEL Maintainer="Jabar Digital Service <digital.service@jabarprov.go.id>" \
       Description="Lightweight container with Nginx 1.16 & PHP-FPM 7.4 based on Alpine Linux (forked from trafex/alpine-nginx-php7)."
@@ -29,7 +29,7 @@ RUN ln -s /usr/bin/php7 /usr/bin/php
 COPY docker-config/nginx.conf /etc/nginx/nginx.conf
 
 # Remove default server definition
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm etc/nginx/conf.d/default.conf
 
 # Configure PHP-FPM
 COPY docker-config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
