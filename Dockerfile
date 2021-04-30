@@ -59,7 +59,7 @@ COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
 #COPY --chown=nobody .env-local /var/www/html/.env
 
 
-RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader -d \
+RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader \
   && chmod +x docker-config/docker-entrypoint.sh
 
 #RUN composer install
