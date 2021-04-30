@@ -11,10 +11,10 @@ do
     echo "Waiting for database connection ..."
 done
 
-composer dump-autoload
-artisan config:clear
-artisan cache:clear
-artisan route:clear
+php composer.phar dump-autoload
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
 #php backend/artisan migrate --no-interaction -vvv --force
 
 /usr/bin/supervisord
