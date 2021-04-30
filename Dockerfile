@@ -20,6 +20,10 @@ RUN apk add \
 		nano \
 	php7-ctype \
         php7-phar \
+        php7-simplexml \
+        php7-xmlwriter \
+        php7-fileinfo \
+        php7-tokenizer \
 	php7-curl \
         php7-dom \
 	php7-mbstring \
