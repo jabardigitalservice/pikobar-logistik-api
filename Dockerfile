@@ -11,8 +11,8 @@ RUN apk --update add ca-certificates
 RUN echo "https://dl.bintray.com/php-alpine/v3.10/php-7.4" >> /etc/apk/repositories
 
 # Install packages
-RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
-    nginx supervisor curl
+#RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
+#    nginx supervisor curl
 
 # Get latest Composer
 #RUN apk add composer
@@ -23,7 +23,7 @@ RUN apk --no-cache add php7 php7-fpm php7-opcache php7-mysqli php7-json php7-ope
 
 
 # https://github.com/codecasts/php-alpine/issues/21
-RUN ln -s /usr/bin/php7 /usr/bin/php
+#RUN ln -s /usr/bin/php7 /usr/bin/php
 
 # Configure nginx
 COPY docker-config/nginx.conf /etc/nginx/nginx.conf
