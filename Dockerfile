@@ -6,9 +6,9 @@ LABEL Maintainer="Jabar Digital Service <digital.service@jabarprov.go.id>" \
 ADD https://dl.bintray.com/php-alpine/key/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
 
 # make sure you can use HTTPS
-RUN apk --update add ca-certificates
+#RUN apk --update add ca-certificates
 
-RUN echo "https://dl.bintray.com/php-alpine/v3.10/php-7.4" >> /etc/apk/repositories
+#RUN echo "https://dl.bintray.com/php-alpine/v3.10/php-7.4" >> /etc/apk/repositories
 
 # Install packages
 #RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
@@ -53,8 +53,8 @@ USER nobody
 
 # Add application
 WORKDIR /var/www/html
-COPY --chown=nobody . /var/www/html/
-COPY --from=composer:2.0.12 /usr/bin/composer /usr/local/bin/composer
+COPY --chown=nobody . /var/www/html
+COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
 
 #COPY --chown=nobody .env-local /var/www/html/.env
 
