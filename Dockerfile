@@ -16,24 +16,10 @@ RUN apk add php php-fpm php-opcache php-openssl php-curl php-gd \
 
 # Get latest Composer
 #RUN apk add composer
-RUN apk add \
-		nano \
-	php7-ctype \
-        php7-phar \
-        php7-simplexml \
-        php7-xmlwriter \
-        php7-fileinfo \
-        php7-tokenizer \
-	php7-curl \
-        php7-dom \
-	php7-mbstring \
-	php7-json \
-	php7-session \
-        php7-xmlreader \
-        php7-pdo_mysql \ 
-        php7-pdo_sqlite \
-	php7-zip \
-        php7-zlib 
+RUN apk --no-cache add php7 php7-fpm php7-opcache php7-mysqli php7-json php7-openssl php7-curl \
+    php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype php7-session php7-fileinfo php7-tokenizer php7-pdo_pgsql \ 
+    php7-simplexml php7-iconv php7-xmlwriter php7-zip \
+    php7-mbstring php7-gd nginx supervisor curl
 
 
 # https://github.com/codecasts/php-alpine/issues/21
@@ -73,7 +59,7 @@ COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
 #COPY --chown=nobody .env-local /var/www/html/.env
 
 
-RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader  -d docker-config/ \
+RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader \
   && chmod +x docker-config/docker-entrypoint.sh
 
 #RUN composer install
