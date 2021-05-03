@@ -39,6 +39,7 @@ COPY docker-config/php.ini /etc/php7/conf.d/custom.ini
 COPY docker-config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 #Debug supervisord.conf
+RUN cd /etc/supervisord/conf.d
 RUN ls -l
 
 # Setup document root
