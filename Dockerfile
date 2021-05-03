@@ -3,7 +3,7 @@ FROM alpine:3.13
 LABEL Maintainer="Jabar Digital Service <digital.service@jabarprov.go.id>" \
       Description="Lightweight container with Nginx 1.16 & PHP-FPM 7.4 based on Alpine Linux (forked from trafex/alpine-nginx-php7)."
 
-ADD https://packages.whatwedo.ch/php-alpine/v3.10/php-7.4 /etc/apk/keys/php-alpine.rsa.pub
+ADD https://packages.whatwedo.ch/php-alpine.rsa.pub /etc/apk/keys/php-alpine.rsa.pub
 
 # make sure you can use HTTPS
 #RUN apk --update add ca-certificates
