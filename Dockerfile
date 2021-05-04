@@ -21,9 +21,6 @@ COPY docker-config/php.ini /etc/php7/conf.d/custom.ini
 # Configure supervisord
 COPY docker-config/supervisord.conf /etc/supervisord.conf
 
-#Debug supervisord.conf
-RUN ls -l /etc/
-
 # Setup document root
 RUN mkdir -p /var/www/html
 
