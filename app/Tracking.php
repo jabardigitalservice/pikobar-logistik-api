@@ -4,10 +4,9 @@ namespace App;
 
 use DB;
 use App\LogisticRealizationItems;
-use App\Agency;
 use Illuminate\Http\Request;
 
-class Tracking
+class Tracking extends Agency
 {
     static function selectFieldsList()
     {
@@ -92,9 +91,9 @@ class Tracking
 
     static function trackList(Request $request)
     {
-        $list = Agency::with([
+        $list = Tracking::with([
             'tracking' => function ($query) {
-                $query->select(self::selectFieldsList())->where('is_deleted', '!=' , 1);
+                $query->select(Tracking::selectFieldsList())->active();
             }
         ])->whereHas('applicant', function ($query) use ($request) {
             $query->when($request->input('search'), function ($query) use ($request)  {
@@ -103,11 +102,16 @@ class Tracking
                 $query->orWhere('primary_phone_number', '=', $request->input('search'));
                 $query->orWhere('secondary_phone_number', '=', $request->input('search'));
             });
-        });
-        $list = Agency::getDefaultWith($list);
-        $list = Agency::whereHasApplicant($list, $request);
-        $list = $list->orderBy('agency.created_at', 'desc')->limit(5)->get();
+        })
+        ->getDefaultWith()
+        ->whereHasApplicant($request)
+        ->orderBy('agency.created_at', 'desc')->limit(5)->get();
 
         return $list;
+    }
+
+    public function tracking()
+    {
+        return $this->hasOne('App\Applicant', 'agency_id', 'id');
     }
 }

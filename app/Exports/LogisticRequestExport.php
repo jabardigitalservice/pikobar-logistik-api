@@ -24,9 +24,7 @@ class LogisticRequestExport implements FromCollection, WithMapping, WithHeadings
 
     public function collection()
     {
-        $sort = $this->request->filled('sort') ? ['agency_name ' . $this->request->input('sort') . ', ', 'updated_at DESC'] : ['updated_at DESC, ', 'agency_name ASC'];
-        $data = Agency::getList($this->request, false);        
-        $data = $data->orderByRaw(implode($sort))->get();
+        $data = Agency::getList($this->request, false)->get();
         foreach ($data as $key => $value) {
             $data[$key]->row_number = $key + 1;
         }
@@ -35,14 +33,14 @@ class LogisticRequestExport implements FromCollection, WithMapping, WithHeadings
     }
 
     public function headings(): array
-    {   
+    {
         $columns = [
-            'Nomor', 'Nomor Surat Permohonan', 'Tanggal Pengajuan', 'Jenis Instansi', 'Nama Instansi', 'Nomor Telp Instansi', 
-            'Alamat Lengkap', 'Kab/Kota', 'Kecamatan', 'Desa/Kel', 'Nama Pemohon', 
-            'Jabatan', 'Email', 'Nomor Kontak Pemohon (opsi 1)', 'Nomor Kontak Pemohon (opsi 2)', 'Detail Permohonan (Nama Barang, Jumlah dan Satuan, Urgensi)', 
+            'Nomor', 'Nomor Surat Permohonan', 'Tanggal Pengajuan', 'Jenis Instansi', 'Nama Instansi', 'Nomor Telp Instansi',
+            'Alamat Lengkap', 'Kab/Kota', 'Kecamatan', 'Desa/Kel', 'Nama Pemohon',
+            'Jabatan', 'Email', 'Nomor Kontak Pemohon (opsi 1)', 'Nomor Kontak Pemohon (opsi 2)', 'Detail Permohonan (Nama Barang, Jumlah dan Satuan, Urgensi)',
             'Diverifikasi Oleh', 'Rekomendasi Salur', 'Disetujui Oleh', 'Realisasi Salur', 'Diselesaikan Oleh', 'Status Permohonan'
         ];
-        
+
         return [
             ['DAFTAR PERMOHONAN LOGISTIK'],
             ['ALAT KESEHATAN'],
@@ -57,8 +55,8 @@ class LogisticRequestExport implements FromCollection, WithMapping, WithHeadings
      * @var LogisticsRequest $logisticsRequest
      */
     public function map($logisticsRequest): array
-    {        
-        $administrationColumn = $this->administrationColumn($logisticsRequest);        
+    {
+        $administrationColumn = $this->administrationColumn($logisticsRequest);
         $logisticRequestColumns = $this->logisticRequestColumn($logisticsRequest);
         $recommendationColumn = $this->recommendationColumn($logisticsRequest);
         $finalizationColumn = $this->finalizationColumn($logisticsRequest);
@@ -111,7 +109,7 @@ class LogisticRequestExport implements FromCollection, WithMapping, WithHeadings
     }
 
     public function recommendationColumn($logisticsRequest)
-    {        
+    {
         $data = [
             $logisticsRequest->applicant->verifiedBy['name'] ?? '-',
             $logisticsRequest->recommendationItems->map(function ($items) {
@@ -122,7 +120,7 @@ class LogisticRequestExport implements FromCollection, WithMapping, WithHeadings
 
         return $data;
     }
-    
+
     public function finalizationColumn($logisticsRequest)
     {
         $data = [

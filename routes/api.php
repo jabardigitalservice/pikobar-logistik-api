@@ -146,7 +146,7 @@ Route::namespace('API\v1')->prefix('v1')->group(function () {
         Route::post('/logistic-request/letter/{id}', 'LogisticRequestController@uploadLetter');
         Route::post('/logistic-request/identity/{id}', 'LogisticRequestController@uploadApplicantFile');
         Route::post('/logistic-request/urgency', 'LogisticRequestController@urgencyChange');
-        Route::post('/logistic-request/return', 'LogisticRequestController@undoStep');
+        Route::post('/logistic-request/return', 'LogisticRequestStatusController@undoStep');
         Route::put('/logistic-request/{id}', 'LogisticRequestController@update');
         Route::post('/logistic-request/applicant-letter/{id}', 'LogisticRequestController@update');
         Route::post('/logistic-request/applicant-identity/{id}', 'LogisticRequestController@update');

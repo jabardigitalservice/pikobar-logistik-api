@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\v1;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 use App\Http\Controllers\Controller;
 use App\Product;
@@ -26,11 +27,11 @@ class ProductsController extends Controller
                 if ($request->filled('limit')) {
                     $query->paginate($request->input('limit'));
                 }
-    
+
                 if ($request->filled('name')) {
                     $query->where('products.name', 'LIKE', "%{$request->input('name')}%");
                 }
-    
+
                 if ($request->filled('user_filter')) {
                     $query->where('products.user_filter', '=', $request->input('user_filter'));
                 }
@@ -57,8 +58,8 @@ class ProductsController extends Controller
     public function productUnit($id)
     {
         $data = Product::select(
-                'products.id', 
-                'products.name',  
+                'products.id',
+                'products.name',
                 DB::raw('IFNULL(product_unit.unit_id, 1) as unit_id'),
                 DB::raw('IFNULL(master_unit.unit, "PCS") as unit')
             )
@@ -67,105 +68,52 @@ class ProductsController extends Controller
                 $join->on('product_unit.unit_id', '=', 'master_unit.id')
                     ->where('master_unit.is_imported', false);
             })
-            ->where('products.id', $id) 
+            ->where('products.id', $id)
             ->get();
-            
+
         return $data;
     }
 
     public function productRequest(Request $request)
     {
-        $startDate = $request->filled('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
-        $endDate = $request->filled('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
+        $query = Product::query()
+                ->withCount(['need as total_request' => function($query) use ($request) {
+                    $query->select(DB::raw('sum(quantity)'))->filterByApplicant($request);
+                }])
+                ->orderBy('total_request', $request->input('sort', 'desc'));
 
-        try {
-            $query = Product::select(
-                'products.id', 
-                'products.name',
-                'needs.unit',
-                DB::raw('SUM(needs.quantity) as total_request')
-            )
-            ->leftJoin('needs', function ($join) use ($startDate, $endDate) {
-                $join->on('needs.product_id', '=', 'products.id')
-                ->join('applicants', function($join) use ($startDate, $endDate) {
-                    $join->on('needs.agency_id', '=', 'applicants.agency_id');
-                });
-            })    
-            ->where('applicants.verification_status', Applicant::STATUS_VERIFIED)
-            ->where('applicants.is_deleted', '!=', 1)
-            ->whereBetween('applicants.created_at', [$startDate, $endDate]) 
-            ->where('products.material_group_status', 1)
-            ->orderBy('total_request', $request->input('sort', 'desc'))            
-            ->groupBy('products.id', 'products.name', 'needs.unit');
-            if ($request->filled('limit')) {
-                $data = $query->paginate($request->input('limit'));
-            } else {
-                $data = [
-                    'data' => $query->get(),
-                    'total' => $query->get()->count()
-                ];
-            }
-
-            $response = response()->format(200, 'success', $data);
-        } catch (\Exception $exception) {
-            $response = response()->format(400, $exception->getMessage());
+        if ($request->has('limit')) {
+            $data = $query->paginate($request->input('limit'));
+        } else {
+            $data = [
+                'data' => $query->get(),
+                'total' => $query->get()->count()
+            ];
         }
-        return $response;
+
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     /**
      * productTopRequest function
-     * 
+     *
      * to get top 1 requested product
-     * 
+     *
      * @param Request $request
      * @return void
      */
     public function productTopRequest(Request $request)
     {
-        $startDate = $request->filled('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
-        $endDate = $request->filled('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
-
         $data = [
-            'total_items' => $this->totalItems($startDate, $endDate),
-            'total_max' => $this->totalMax($startDate, $endDate)
+            'total_items' => Needs::filterByApplicant($request)->sum('quantity'),
+            'total_max' => Product::query()
+                                    ->withCount(['need as total' => function($query) use ($request) {
+                                        $query->select(DB::raw('sum(quantity)'))->filterByApplicant($request);
+                                    }])
+                                    ->orderBy('total', 'desc')
+                                    ->orderBy('name')
+                                    ->first()
         ];
-        return response()->format(200, 'success', $data);
-    }
-
-    public function totalItems($startDate, $endDate)
-    {
-        $totalItems = Needs::join('applicants', 'needs.agency_id', '=', 'applicants.agency_id') 
-        ->where('applicants.verification_status', Applicant::STATUS_VERIFIED)
-        ->where('applicants.is_deleted', '!=', 1)
-        ->whereBetween('applicants.created_at', [$startDate, $endDate]) 
-        ->sum('quantity');
-        return $totalItems;
-    }
-
-    public function totalMax($startDate, $endDate)
-    {
-        $sort = ['total DESC, ', 'products.name ASC'];
-        $totalMax = Product::select(
-            'products.id', 
-            'products.name',
-            DB::raw('SUM(needs.quantity) as total'),
-            'needs.unit',
-            'products.category'
-        )
-        ->leftJoin('needs', function ($join) use ($startDate, $endDate) {
-            $join->on('needs.product_id', '=', 'products.id')
-            ->join('applicants', function($join) use ($startDate, $endDate) {
-                $join->on('needs.agency_id', '=', 'applicants.agency_id');
-            });
-        })
-        ->where('applicants.verification_status', Applicant::STATUS_VERIFIED)
-        ->where('applicants.is_deleted', '!=', 1)
-        ->whereBetween('applicants.created_at', [$startDate, $endDate])
-        ->where('products.material_group_status', 1)
-        ->orderByRaw(implode($sort))
-        ->groupBy('products.id', 'products.name', 'needs.unit', 'products.category')->first();
-
-        return $totalMax;
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 }

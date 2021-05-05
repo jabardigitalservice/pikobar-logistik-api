@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class AcceptanceReport extends Model
 {
+    const STATUS_REPORTED = 1;
+    const STATUS_NOT_REPORTED = 0;
+
     static function setParamStore()
     {
         $param['fullname'] = 'required';

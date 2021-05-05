@@ -7,11 +7,12 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: api-logistik-development
+    env_file: 
+      - .env.development
     depends_on:
       - database
     volumes:
       - vendor_data:/var/www/html/vendor
-      - .env.development:/var/www/html/.env
     ports:
       - "8080:80"
     networks:

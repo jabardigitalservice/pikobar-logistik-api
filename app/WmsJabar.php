@@ -46,7 +46,7 @@ class WmsJabar extends Usage
 
             $outboundPlans = json_decode($res->getBody(), true);
             $response = response()->format(Response::HTTP_OK, 'success', $outboundPlans);
-            if ($outboundPlans['msg']) {
+            if ($outboundPlans) {
                 $response = self::insertData($outboundPlans);
             }
         } catch (\Exception $exception) {

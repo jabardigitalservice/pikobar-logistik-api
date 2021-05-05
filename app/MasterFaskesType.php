@@ -13,7 +13,7 @@ class MasterFaskesType extends Model
     {
         return $this->belongsToOne('App\MasterFaskes', 'id_tipe_faskes');
     }
-    
+
     public function agency()
     {
         return $this->hasMany('App\Agency', 'agency_type');

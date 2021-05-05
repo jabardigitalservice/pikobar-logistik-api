@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use DB;
 use JWTAuth;
+use Illuminate\Http\Response;
 
 class LogisticRealizationItems extends Model
 {
@@ -66,7 +67,7 @@ class LogisticRealizationItems extends Model
     static function deleteData($id)
     {
         $result = [
-            'code' => 422,
+            'code' => Response::HTTP_UNPROCESSABLE_ENTITY,
             'message' => 'Gagal Terhapus',
             'data' => $id
         ];
@@ -75,7 +76,7 @@ class LogisticRealizationItems extends Model
             $deleteRealization = self::where('id', $id)->delete();
             DB::commit();
             $result = [
-                'code' => 200,
+                'code' => Response::HTTP_OK,
                 'message' => 'success',
                 'data' => $id
             ];
@@ -137,15 +138,9 @@ class LogisticRealizationItems extends Model
     static function withPICData($data)
     {
         return $data->with([
-            'recommendBy' => function ($query) {
-                return $query->select(['id', 'name', 'agency_name', 'handphone']);
-            },
-            'verifiedBy' => function ($query) {
-                return $query->select(['id', 'name', 'agency_name', 'handphone']);
-            },
-            'realizedBy' => function ($query) {
-                return $query->select(['id', 'name', 'agency_name', 'handphone']);
-            }
+            'recommendBy:id,name,agency_name,handphone',
+            'verifiedBy:id,name,agency_name,handphone',
+            'realizedBy:id,name,agency_name,handphone'
         ]);
     }
 
@@ -205,8 +200,10 @@ class LogisticRealizationItems extends Model
         $data = self::selectList();
         $data = self::withPICData($data);
         $data = $data->whereNotNull('created_by')
-            ->orderBy('logistic_realization_items.id')
-            ->where('logistic_realization_items.agency_id', $request->agency_id)->paginate($limit);
+                     ->orderBy('logistic_realization_items.id')
+                     ->where('logistic_realization_items.agency_id', $request->agency_id)
+                     ->paginate($limit);
+
         $logisticItemSummary = self::where('agency_id', $request->agency_id)->sum('realization_quantity');
         $data->getCollection()->transform(function ($item, $key) use ($logisticItemSummary) {
             $item->status = !$item->status ? 'not_approved' : $item->status;
@@ -269,5 +266,10 @@ class LogisticRealizationItems extends Model
         $fields[] = 'final_at';
         $fields[] = 'final_by';
         return $fields;
+    }
+
+    public function scopeAcceptedStatusOnly($query, $field)
+    {
+        return $query->whereNotIn($field, [self::STATUS_NOT_AVAILABLE, self::STATUS_NOT_YET_FULFILLED]);
     }
 }

@@ -18,7 +18,7 @@ class Product extends Model
 
     public function need()
     {
-        return $this->belongsToOne('App\Needs', 'product_id', 'id');
+        return $this->hasMany('App\Needs', 'product_id', 'id');
     }
 
     public function unit()

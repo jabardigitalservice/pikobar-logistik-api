@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\FileUpload;
-use League\Flysystem\File;
 
 class Applicant extends Model
 {
@@ -17,11 +16,6 @@ class Applicant extends Model
     const STATUS_FINALIZED = 'finalized';
     const STATUS_REJECTED = 'rejected';
 
-    /**
-    * All of the relationships to be touched.
-    *
-    * @var array
-    */
     protected $touches = ['agency'];
 
     protected $fillable = [
@@ -34,8 +28,6 @@ class Applicant extends Model
         'secondary_phone_number',
         'verification_status',
         'source_data',
-        'created_at',
-        'updated_at',
         'created_by',
         'updated_by',
         'verified_by',
@@ -59,34 +51,14 @@ class Applicant extends Model
         'delivered' => 'boolean'
     ];
 
-    public function masterFaskesType()
-    {
-        return $this->hasOne('App\MasterFaskesType', 'id', 'agency_type');
-    }
-
     public function agency()
     {
         return $this->belongsTo('App\Agency', 'agency_id', 'id');
     }
 
-    public function city()
-    {
-        return $this->belongsTo('App\City', 'location_district_code', 'kemendagri_kabupaten_kode');
-    }
-
     public function letter()
     {
         return $this->hasOne('App\Letter', 'applicant_id', 'id');
-    }
-
-    public function village()
-    {
-        return $this->belongsTo('App\Village', 'location_village_code', 'kemendagri_desa_kode');
-    }
-
-    public function subDistrict()
-    {
-        return $this->belongsTo('App\Subdistrict', 'location_subdistrict_code', 'kemendagri_kecamatan_kode');
     }
 
     public function verifiedBy()
@@ -182,39 +154,10 @@ class Applicant extends Model
 
     static function updateApplicant($request, $dataUpdate)
     {
-        try {
-            $applicant = Applicant::where('id', $request->applicant_id)->where('agency_id', $request->agency_id)->where('is_deleted', '!=' , 1)->firstOrFail();
-            $applicant->fill($dataUpdate);
-            $applicant->save();
-        } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
-        }
+        $applicant = Applicant::where('id', $request->applicant_id)->where('agency_id', $request->agency_id)->active()->firstOrFail();
+        $applicant->fill($dataUpdate);
+        $applicant->save();
         return $applicant;
-    }
-
-    static function undoStep($request)
-    {
-        $dataUpdate = [];
-        switch ($request->step) {
-            case 'final':
-                $dataUpdate = self::setNotYetFinalized($dataUpdate);
-                $request['status'] = 'realisasi';
-                break;
-            case 'realisasi':
-                $dataUpdate = self::setNotYetApproved($dataUpdate);
-                $request['status'] = 'rekomendasi';
-                break;
-            case 'ditolak rekomendasi':
-                $dataUpdate = self::setNotYetApproved($dataUpdate);
-                $request['status'] = 'rekomendasi';
-                break;
-            default:
-                $dataUpdate = self::setNotYetVerified($dataUpdate);
-                $request['status'] = 'surat';
-                break;
-        }
-        $update = self::updateApplicant($request, $dataUpdate);
-        return $request;
     }
 
     static function setNotYetFinalized($model)
@@ -245,21 +188,52 @@ class Applicant extends Model
         return $model;
     }
 
-    static function getTotalBy($createdAt, $params)
+    public function scopeActive($query)
     {
-        $total = self::Select('applicants.id', 'applicants.updated_at')
-        ->whereBetween('created_at', $createdAt)
-        ->where('is_deleted', '!=' , 1);
+        return $query->where('is_deleted', '!=', 1);
+    }
 
-        if ($params['source_data']) {
-            $total = $total->where('source_data', $params['source_data']);
-        }
+    public function scopecreatedBetween($query, $request)
+    {
+        $startDate = $request->has('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
+        $endDate = $request->has('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
 
-        if ($params['approval_status'] && $params['verification_status']) {
-            $total = $total->where('approval_status', $params['approval_status'])
-            ->where('verification_status', $params['verification_status']);
-        }
-        return $total;
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
+    }
+
+    public function scopeSourceData($query, $value)
+    {
+        return $query->where('source_data', $value);
+    }
+
+    public function scopeUnverified($query)
+    {
+        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_NOT_VERIFIED);
+    }
+
+    public function scopeVerified($query)
+    {
+        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_VERIFIED);
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('approval_status', Applicant::STATUS_APPROVED)->where('verification_status', Applicant::STATUS_VERIFIED)->whereNull('finalized_by');
+    }
+
+    public function scopeFinal($query)
+    {
+        return $query->whereNotNull('finalized_by');
+    }
+
+    public function scopeVerificationRejected($query)
+    {
+        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_REJECTED);
+    }
+
+    public function scopeApprovalRejected($query)
+    {
+        return $query->where('approval_status', Applicant::STATUS_REJECTED)->where('verification_status', Applicant::STATUS_VERIFIED);
     }
 
     static function requestSummaryResult($params)
@@ -281,5 +255,14 @@ class Applicant extends Model
             'last_update' => $params['lastUpdate'] ? date('Y-m-d H:i:s', strtotime($params['lastUpdate']->updated_at)) : '2020-01-01 00:00:00'
         ];
         return $data;
+    }
+
+    public function scopeFilter($query, $request)
+    {
+        return $query->whereHas('agency', function($query) use ($request) {
+            if ($request->has('city_code')) {
+                $query->where('location_district_code', $request->input('city_code'));
+            }
+        });
     }
 }

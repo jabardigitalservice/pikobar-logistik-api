@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use DB;
 use App\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class Needs extends Model
 {
     use SoftDeletes;
-    
+
     const STATUS = [
         'Rendah',
         'Menengah',
@@ -53,7 +54,7 @@ class Needs extends Model
             'needs.priority',
             'needs.created_at',
             'needs.updated_at',
-            
+
             'logistic_realization_items.need_id',
             'logistic_realization_items.material_group',
             'logistic_realization_items.status',
@@ -97,7 +98,7 @@ class Needs extends Model
 
         return $data;
     }
-    
+
     static function getListNeed($data, $request)
     {
         return $data->with([
@@ -136,7 +137,7 @@ class Needs extends Model
     {
         return $this->hasOne('App\MasterUnit', 'id', 'unit');
     }
-    
+
     public function masterUnit()
     {
         return $this->hasOne('App\MasterUnit', 'id', 'unit');
@@ -157,6 +158,11 @@ class Needs extends Model
         return $this->hasOne('App\User', 'id', 'realization_by');
     }
 
+    public function applicant()
+    {
+        return $this->belongsTo('App\Applicant');
+    }
+
     static function listNeed(Request $request)
     {        
         $limit = $request->input('limit', 3);
@@ -172,8 +178,17 @@ class Needs extends Model
             $item->logistic_item_summary = (int)$logisticItemSummary;
             return $item;
         });
-        $response = response()->format(200, 'success', $data);
+        $response = response()->format(Response::HTTP_OK, 'success', $data);
         return $response;
     }
-    
+
+    public function scopeFilterByApplicant($query, $request)
+    {
+        return $query->whereHas('applicant', function($query) use ($request) {
+            $query->active()
+                ->createdBetween($request)
+                ->where('verification_status', Applicant::STATUS_VERIFIED)
+                ->filter($request);
+        });
+    }
 }
