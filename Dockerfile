@@ -56,5 +56,7 @@ RUN php /usr/local/bin/composer install --no-dev --optimize-autoloader
 # Expose the port nginx is reachable on
 EXPOSE 8080
 
-# Let supervisord start nginx & php-fpm
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+ENTRYPOINT [ "docker-config/docker-entrypoint.sh" ]
+
+# Configure a healthcheck to validate that everything is up&running
+HEALTHCHECK --timeout=10s CMD curl --silent --fail http://127.0.0.1:8080/fpm-ping
