@@ -162,29 +162,30 @@ class Agency extends Model
     public function scopeSearchReport($query, $request)
     {
         $isHasDateRangeFilter = $request->has('start_date') && $request->has('end_date');
-        if ($isHasDateRangeFilter) {
+
+        $query->when($isHasDateRangeFilter, function ($query) use ($request) {
             $startDate = $request->has('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
             $endDate = $request->has('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
 
             $query->whereBetween('acceptance_reports.date', [$startDate, $endDate]);
-        }
-
-        if ($request->has('search')) {
+        })
+        ->when($request->has('search'), function ($query) use ($request) {
             $query->where(function ($query) use ($request) {
                 $query->where('agency.id', 'LIKE', '%' . $request->input('search') . '%')
                       ->orWhereHas('applicant', function ($query) use ($request) {
                             $query->where('applicant_name', 'LIKE', '%' . $request->input('search') . '%');
                       });
             });
-        }
+        })
+        ->when($request->has('status'), function ($query) use ($request) {
+            $isReported = $request->input('status') == AcceptanceReport::STATUS_REPORTED;
 
-        if ($request->has('status')) {
-            if ($request->input('status') == AcceptanceReport::STATUS_REPORTED) {
+            $query->when($isReported, function ($query) use ($request) {
                 $query->has('acceptanceReport');
-            } else {
+            }, function ($query) use ($request) {
                 $query->doesntHave('acceptanceReport');
-            }
-        }
+            });
+        });
 
         return $query;
     }
@@ -296,10 +297,5 @@ class Agency extends Model
     public function finalizationItems()
     {
         return $this->logisticRealizationItems();
-    }
-
-    public function tracking()
-    {
-        return $this->hasOne('App\Applicant', 'agency_id', 'id');
     }
 }
