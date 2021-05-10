@@ -6,32 +6,18 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class TrackingTest extends TestCase
+class LogisticRequestTest extends TestCase
 {
-    public function testGetTracking()
+    public function testGetLogisticRequestNoAuth()
     {
-        $response = $this->get('/api/v1/landing-page-registration/tracking');
-        $response->assertStatus(200);
+        $response = $this->get('/api/v1/logistic-request');
+        $response->assertStatus(401);
     }
 
-    public function testGetTrackingByAgencyId()
+    public function testGetLogisticRequestByAgencyIdNoAuth()
     {
         $agencyId = 1661;
-        $response = $this->get('/api/v1/landing-page-registration/tracking/' . $agencyId);
-        $response->assertStatus(200);
-    }
-
-    public function testGetTrackingByEmail()
-    {
-        $email = 'budiaramdhanrindi@gmail.com';
-        $response = $this->get('/api/v1/landing-page-registration/tracking/' . $email);
-        $response->assertStatus(200);
-    }
-
-    public function testGetTrackingByPhone()
-    {
-        $phone = '081809556334';
-        $response = $this->get('/api/v1/landing-page-registration/tracking/' . $phone);
-        $response->assertStatus(200);
+        $response = $this->get('/api/v1/logistic-request/' . $agencyId);
+        $response->assertStatus(401);
     }
 }
