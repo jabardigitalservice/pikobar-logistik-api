@@ -2,6 +2,9 @@
 
 namespace App;
 
+use App\Enums\ApplicantStatusEnum;
+use App\Enums\LogisticRequestEnum;
+use App\Enums\TrackingStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use App\FileUpload;
 
@@ -45,6 +48,8 @@ class Applicant extends Model
         'is_integrated'
     ];
 
+    protected $appends = ['tracking_status'];
+
     protected $casts = [
         'request' => 'boolean',
         'delivering' => 'boolean',
@@ -78,7 +83,20 @@ class Applicant extends Model
 
     public function getVerificationStatusAttribute($value)
     {
-        $status = $value === self::STATUS_NOT_VERIFIED ? 'Belum Terverifikasi' : ($value === self::STATUS_VERIFIED ? 'Terverifikasi' : ($value === self::STATUS_REJECTED ? 'Pengajuan Ditolak' : ''));
+        switch($value) {
+            case ApplicantStatusEnum::not_verified():
+                $status = LogisticRequestEnum::not_verified();
+                break;
+            case ApplicantStatusEnum::verified():
+                $status = LogisticRequestEnum::verified();
+                break;
+            case ApplicantStatusEnum::rejected():
+                $status = LogisticRequestEnum::request_rejected();
+                break;
+            default:
+                $status = '';
+                break;
+        }
         return $status;
     }
 
@@ -94,46 +112,50 @@ class Applicant extends Model
 
     public function getApprovalStatusAttribute($value)
     {
-        $status = $value === self::STATUS_APPROVED ? 'Telah Disetujui' : ($value === self::STATUS_REJECTED ? 'Permohonan Ditolak' : '');
+        $status = $value == ApplicantStatusEnum::approved() ? LogisticRequestEnum::approved() : ($value == ApplicantStatusEnum::rejected() ? LogisticRequestEnum::approval_rejected() : '');
         return $status;
-    }
-
-    // Cast for Tracking Module
-    public function getVerificationAttribute($value)
-    {
-        $status = $value === self::STATUS_VERIFIED ? TRUE : ($value === self::STATUS_REJECTED ? TRUE : FALSE);
-        $result = [
-            'status' => $status,
-            'is_reject' => $value === self::STATUS_REJECTED ? TRUE : FALSE,
-        ];
-        return $result;
-    }
-
-    // Cast for Tracking Module
-    public function getApprovalAttribute($value)
-    {
-        $status = $value === self::STATUS_APPROVED ? TRUE : ($value === self::STATUS_REJECTED ? TRUE : FALSE);
-        $result = [
-            'status' => $status,
-            'is_reject' => $value === self::STATUS_REJECTED ? TRUE : FALSE,
-        ];
-        return $result;
     }
 
     // Cast for Tracking Module
     public function getStatusAttribute($value)
     {
-        $status = 'Permohonan Diterima';
-        if ($value == self::STATUS_APPROVED . '-' . self::STATUS_VERIFIED) {
-                $status = 'Permohonan Disetujui';
-        } elseif ($value == self::STATUS_REJECTED . '-' . self::STATUS_VERIFIED) {
-                $status = 'Permohonan Ditolak';
-        } elseif ($value == self::STATUS_NOT_APPROVED . '-' . self::STATUS_VERIFIED) {
-                $status = 'Administrasi Terverifikasi';
-        } elseif ($value == self::STATUS_NOT_APPROVED . '-' . self::STATUS_REJECTED) {
-                $status = 'Administrasi Ditolak';
+        $status = LogisticRequestEnum::not_yet_verified();
+        if ($value == ApplicantStatusEnum::approved() . '-' . ApplicantStatusEnum::verified()) {
+            $status = LogisticRequestEnum::recommended();
+        } elseif ($value == ApplicantStatusEnum::rejected() . '-' . ApplicantStatusEnum::verified()) {
+            $status = LogisticRequestEnum::approval_rejected();
+        } elseif ($value == ApplicantStatusEnum::not_approved() . '-' . ApplicantStatusEnum::verified()) {
+            $status = LogisticRequestEnum::not_yet_approved();
+        } elseif ($value == ApplicantStatusEnum::not_approved() . '-' . ApplicantStatusEnum::rejected()) {
+            $status = LogisticRequestEnum::verification_rejected();
         }
         return $status;
+    }
+
+    public function getTrackingStatusAttribute()
+    {
+        $phase = TrackingStatusEnum::not_verified();
+
+        if ($this->verification_status == LogisticRequestEnum::verified()) {
+            $phase = TrackingStatusEnum::verified();
+        }
+
+        if ($this->approval_status == LogisticRequestEnum::approved()) {
+            $phase = TrackingStatusEnum::approved();
+        }
+
+        if ($this->finalized_by) {
+            $phase = TrackingStatusEnum::finalized();
+        }
+
+        if ($this->verification_status == LogisticRequestEnum::request_rejected()) {
+            $phase = TrackingStatusEnum::verification_rejected();
+        }
+
+        if ($this->approval_status == LogisticRequestEnum::approval_rejected()) {
+            $phase = TrackingStatusEnum::approval_rejected();
+        }
+        return $phase;
     }
 
     // Cast for incoming_mail_status attribute
@@ -144,7 +166,7 @@ class Applicant extends Model
 
     static function applicantStore($request)
     {
-        $request['verification_status'] = self::STATUS_NOT_VERIFIED;
+        $request['verification_status'] = ApplicantStatusEnum::not_verified();
         $request['applicants_office'] = $request->input('applicants_office') == 'undefined' ? '' : $request->input('applicants_office', '');
         $request['email'] = $request->input('email') == 'undefined' ? '' : $request->input('email', '');
         $request['secondary_phone_number'] = $request->input('secondary_phone_number') == 'undefined' ? '' : $request->input('secondary_phone_number', '');

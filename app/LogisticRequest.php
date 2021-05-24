@@ -245,9 +245,6 @@ class LogisticRequest extends Model
         $param['step'] = 'finalized';
         $param['phase'] = 'final';
         $response = self::getResponseApproval($request, $param);
-        if ($response->getStatusCode() === 200) {
-            $response = WmsJabar::sendPing();
-        }
         return $response;
     }
 

@@ -1,0 +1,10 @@
+exclude_patterns:
+- "config/"
+- "db/"
+- "database/"
+- "**/migrations/"
+- "**/seeds/"
+- "**/factories/"
+- "tests/"
+- "vendor/"
+- "storage/"

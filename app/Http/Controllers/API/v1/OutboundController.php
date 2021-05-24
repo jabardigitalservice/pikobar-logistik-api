@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\v1;
 
 use App\Http\Controllers\Controller;
+use App\Outbound;
 use App\WmsJabar;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -42,5 +43,16 @@ class OutboundController extends Controller
     public function updateAll(Request $request)
     {
         return WmsJabar::updateAll($request);
+    }
+
+    public function tracking(Request $request, $id)
+    {
+        $limit = $request->input('limit', 3);
+        $outbound = Outbound::select('lo_id', 'whs_name', 'pic_name', 'pic_handphone', 'map_url')
+                    ->join('soh_locations', 'soh_locations.location_id', '=', 'outbounds.lo_location')
+                    ->where('req_id', $id)
+                    ->get();
+
+        return $outbound;
     }
 }
