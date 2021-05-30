@@ -20,28 +20,26 @@ class ProductsController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            $query = Product::where('products.is_imported', false)
-            ->where('products.material_group_status', 1)
-            ->where(function ($query) use ($request) {
-                if ($request->has('limit')) {
-                    $query->paginate($request->input('limit'));
-                }
+        $query = Product::where('products.is_imported', false)
+                        ->where('products.material_group_status', 1)
+                        ->where(function ($query) use ($request) {
+                            if ($request->has('limit')) {
+                                $query->paginate($request->input('limit'));
+                            }
 
-                if ($request->has('name')) {
-                    $query->where('products.name', 'LIKE', "%{$request->input('name')}%");
-                }
+                            if ($request->has('name')) {
+                                $query->where('products.name', 'LIKE', "%{$request->input('name')}%");
+                            }
 
-                if ($request->has('user_filter')) {
-                    $query->where('products.user_filter', '=', $request->input('user_filter'));
-                }
-            })
-            ->orderBy('products.sort', 'ASC')->orderBy('products.name', 'ASC');
-        } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
-        }
+                            if ($request->has('user_filter')) {
+                                $query->where('products.user_filter', '=', $request->input('user_filter'));
+                            }
+                        })
+                        ->orderBy('products.sort', 'ASC')
+                        ->orderBy('products.name', 'ASC')
+                        ->get();
 
-        return response()->format(200, 'success', $query->get());
+        return response()->format(Response::HTTP_OK, 'success', $query);
     }
 
     /**
