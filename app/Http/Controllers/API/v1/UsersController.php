@@ -76,7 +76,7 @@ class UsersController extends ApiController
 
     public function changePassword(Request $request)
     {
-        $request->request->add(['username' => JWTAuth::user()->username]);
+        $request->merge(['username' => JWTAuth::user()->username]);
         $response = $this->authenticate($request);
         if ($response->getStatusCode() === 200) {
             $update = User::where('id', JWTAuth::user()->id)->update(['password' => bcrypt($request->password_new)]);

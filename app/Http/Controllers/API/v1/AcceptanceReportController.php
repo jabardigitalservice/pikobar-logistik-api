@@ -63,7 +63,7 @@ class AcceptanceReportController extends Controller
         try {
             $acceptanceReport = $this->storeAcceptanceReport($request);
             $this->itemStore($request, $acceptanceReport);
-            $request->request->add(['acceptance_report_id' => $acceptanceReport->id]);
+            $request->merge(['acceptance_report_id' => $acceptanceReport->id]);
             // Upload Seluruh File
             $proof_pic = $this->uploadAcceptanceFile($request, 'proof_pic');
             $bast_proof = $this->uploadAcceptanceFile($request, 'bast_proof');

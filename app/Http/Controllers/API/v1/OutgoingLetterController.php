@@ -163,10 +163,10 @@ class OutgoingLetterController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->request->add(['user_id' => JWTAuth::user()->id]);
-            $request->request->add(['status' =>  OutgoingLetter::NOT_APPROVED]);
+            $request->merge(['user_id' => JWTAuth::user()->id]);
+            $request->merge(['status' =>  OutgoingLetter::NOT_APPROVED]);
             $outgoing_letter = OutgoingLetter::create($request->all());
-            $request->request->add(['outgoing_letter_id' => $outgoing_letter->id]);
+            $request->merge(['outgoing_letter_id' => $outgoing_letter->id]);
             $request_letter = $this->requestLetterStore($request);
             $response = [
                 'outgoing_letter' => $outgoing_letter,
