@@ -66,10 +66,10 @@ class LogisticRequest extends Model
         DB::beginTransaction();
         try {
             $responseData['agency'] = self::agencyStore($request);
-            $request->request->add(['agency_id' => $responseData['agency']->id]);
+            $request->merge(['agency_id' => $responseData['agency']->id]);
 
             $responseData['applicant'] = Applicant::applicantStore($request);
-            $request->request->add(['applicant_id' => $responseData['applicant']->id]);
+            $request->merge(['applicant_id' => $responseData['applicant']->id]);
 
             if ($request->hasFile('applicant_file')) {
                 $responseData['applicant_file'] = FileUpload::storeApplicantFile($request);

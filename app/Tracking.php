@@ -71,7 +71,7 @@ class Tracking extends Agency
     {
         $data = LogisticRealizationItems::select($select);
         $data = self::getJoin($data, false);
-        if ($request->filled('final_status')) {
+        if ($request->has('final_status')) {
             $data = $data->whereIn('final_status', ['approved', 'replaced']);
         }
         return $data->orderBy('needs.id')->where('needs.agency_id', $id);
@@ -81,7 +81,7 @@ class Tracking extends Agency
     {
         $data = LogisticRealizationItems::select($select);
         $data = self::getJoin($data, true);
-        if ($request->filled('final_status')) {
+        if ($request->has('final_status')) {
             $data = $data->whereIn('final_status', ['approved', 'replaced']);
         }
         return $data->whereNotNull('logistic_realization_items.created_by')

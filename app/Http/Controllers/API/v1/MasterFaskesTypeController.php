@@ -13,13 +13,12 @@ class MasterFaskesTypeController extends Controller
 {
     public function index(Request $request)
     {
-
         try {
             $data = MasterFaskesType::where(function ($query) use ($request) {
-                if ($request->filled('is_imported')) {
+                if ($request->has('is_imported')) {
                     $query->where('is_imported', $request->input('is_imported'));
                 }
-                if ($request->filled('non_public')) {
+                if ($request->has('non_public')) {
                     $query->where('non_public', $request->input('non_public'));
                 }
             })->get();

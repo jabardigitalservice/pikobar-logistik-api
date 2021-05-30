@@ -43,10 +43,10 @@ class StockController extends Controller
             'value_poslog' => '',
             'material_name' => false
         ];
-        if ($request->filled('poslog_id')) {
+        if ($request->has('poslog_id')) {
             $result['field_poslog'] = 'material_id';
             $result['value_poslog'] = $request->input('poslog_id');
-        } else if ($request->filled('id')) {
+        } else if ($request->has('id')) {
             $product = Product::getFirst($request->input('id'));
             $result['field_poslog'] = 'matg_id';
             $result['value_poslog'] = $product->material_group;

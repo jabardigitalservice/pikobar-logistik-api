@@ -25,7 +25,7 @@ class FileUpload extends Model
         $path = Storage::disk('s3')->put(self::LETTER_PATH, $request->letter_file);
         $fileupload = self::create(['name' => $path]);
         $fileuploadid = $fileupload->id;
-        $request->request->add(['letter' => $fileuploadid]);
+        $request->merge(['letter' => $fileuploadid]);
         $deleteotherletter = Letter::where('agency_id', '=', $request->agency_id)->where('applicant_id', '=', $request->applicant_id)->delete();
         $letter = Letter::create($request->all());
         $letter->file_path = Storage::disk('s3')->url($fileupload->name);

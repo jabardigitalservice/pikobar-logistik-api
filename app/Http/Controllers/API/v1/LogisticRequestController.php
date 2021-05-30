@@ -39,8 +39,8 @@ class LogisticRequestController extends Controller
         $cutOffDateTime = $request->input('cut_off_datetime', $cutOffDateTimeState);
         $today = \Carbon\Carbon::now()->toDateTimeString();
 
-        $request->request->add(['start_date' => $cutOffDateTime]);
-        $request->request->add(['end_date' => $today]);
+        $request->merge(['start_date' => $cutOffDateTime]);
+        $request->merge(['end_date' => $today]);
         $logisticRequest = Agency::getList($request, false)->get();
 
         $data = [
@@ -233,11 +233,10 @@ class LogisticRequestController extends Controller
     public function uploadApplicantFile(Request $request, $id)
     {
         $param = [
-            'applicant_file' => 'required|mimes:jpeg,jpg,png,pdf|max:10240'
+        $request->merge(['applicant_id' => $id]);
         ];
         $response = Validation::validate($request, $param);
         if ($response->getStatusCode() === 200) {
-            $request->request->add(['applicant_id' => $id]);
             $response = FileUpload::storeApplicantFile($request);
             $applicant = Applicant::where('id', '=', $request->applicant_id)->update(['file' => $response->id]);
             Validation::setCompleteness($request);

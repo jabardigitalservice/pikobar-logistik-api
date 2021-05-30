@@ -27,11 +27,11 @@ class OutgoingLetterController extends Controller
         $limit = $request->input('limit', 10);
         $sortType = $request->input('sort', 'DESC');
         $data = OutgoingLetter::where(function ($query) use ($request) {
-            if ($request->filled('letter_number')) {
+            if ($request->has('letter_number')) {
                 $query->where('letter_number', 'LIKE', "%{$request->input('letter_number')}%");
             }
 
-            if ($request->filled('letter_date')) {
+            if ($request->has('letter_date')) {
                 $query->where('letter_date', $request->input('letter_date'));
             }
 
@@ -163,11 +163,11 @@ class OutgoingLetterController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->request->add(['user_id' => JWTAuth::user()->id]);
-            $request->request->add(['status' =>  OutgoingLetter::NOT_APPROVED]);
+            $request->merge(['user_id' => JWTAuth::user()->id]);
+            $request->merge(['status' =>  OutgoingLetter::NOT_APPROVED]);
             $outgoing_letter = OutgoingLetter::create($request->all());
-            $request->request->add(['outgoing_letter_id' => $outgoing_letter->id]);
-            $request_letter = $this->requestLetterStore($request);
+            $request->merge(['outgoing_letter_id' => $outgoing_letter->id]);
+            $request_letter = RequestLetter::requestLetterStore($request);
             $response = [
                 'outgoing_letter' => $outgoing_letter,
                 'request_letter' => $request_letter,
