@@ -9,6 +9,7 @@ use App\Validation;
 use DB;
 use JWTAuth;
 use App\Applicant;
+use App\Enums\LogisticRealizationItemsStatusEnum;
 use App\PoslogProduct;
 use Log;
 
@@ -205,7 +206,7 @@ class LogisticRealizationItemController extends Controller
     public function setValue($request, $findOne)
     {
         unset($request['id']);
-        if ($request->input('status') !== LogisticRealizationItems::STATUS_NOT_AVAILABLE) {
+        if ($request->input('status') !== LogisticRealizationItemsStatusEnum::not_available()) {
             //Get Material from PosLog by Id
             $request = $this->getPosLogData($request);
         } else {
@@ -306,7 +307,7 @@ class LogisticRealizationItemController extends Controller
 
     public function isStatusNoNeedItem($status)
     {
-        return ($status === LogisticRealizationItems::STATUS_NOT_AVAILABLE || $status === LogisticRealizationItems::STATUS_NOT_YET_FULFILLED);
+        return ($status === LogisticRealizationItemsStatusEnum::not_available() || $status === LogisticRealizationItemsStatusEnum::not_yet_fulfilled());
     }
 
     public function isValidStatus($request)

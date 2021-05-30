@@ -12,6 +12,7 @@ use DB;
 use App\LogisticRealizationItems;
 use App\AcceptanceReport;
 use App\AcceptanceReportDetail;
+use App\Enums\LogisticRealizationItemsStatusEnum;
 use App\FileUpload;
 use App\Http\Resources\AcceptanceReportResource;
 
@@ -137,7 +138,7 @@ class AcceptanceReportController extends Controller
         ];
         $data = LogisticRealizationItems::select($select)
         ->where('agency_id', $id)
-        ->whereIn('logistic_realization_items.final_status', [LogisticRealizationItems::STATUS_REPLACED, LogisticRealizationItems::STATUS_APPROVED])
+        ->whereIn('logistic_realization_items.final_status', [LogisticRealizationItemsStatusEnum::replaced(), LogisticRealizationItemsStatusEnum::approved()])
         ->get();
         $response = response()->format(Response::HTTP_OK, 'success', $data);
         return $response;
