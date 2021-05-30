@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\AcceptanceReport;
 use App\Agency;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 use App\MasterFaskes;
 use App\User;
 use Tests\TestCase;
@@ -41,10 +43,73 @@ class LogisticRequestTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_get_logistic_request()
+    public function test_get_unverified_phase_logistic_request()
     {
         $admin = factory(User::class)->create();
-        $response = $this->actingAs($admin, 'api')->get('/api/v1/logistic-request');
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'verification_status' => ApplicantStatusEnum::not_verified(),
+            'approval_status' => ApplicantStatusEnum::not_approved(),
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_get_recommendation_phase_logistic_request()
+    {
+        $admin = factory(User::class)->create();
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'verification_status' => ApplicantStatusEnum::verified(),
+            'approval_status' => ApplicantStatusEnum::not_approved(),
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_get_realization_phase_logistic_request()
+    {
+        $admin = factory(User::class)->create();
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'verification_status' => ApplicantStatusEnum::verified(),
+            'approval_status' => ApplicantStatusEnum::approved(),
+            'finalized_by' => 0
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_get_finalized_logistic_request()
+    {
+        $admin = factory(User::class)->create();
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'finalized_by' => 1
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_get_rejected_logistic_request()
+    {
+        $admin = factory(User::class)->create();
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'is_rejected' => 1
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_get_logistic_request_filter()
+    {
+        $admin = factory(User::class)->create();
+        $response = $this->actingAs($admin, 'api')->json('GET', '/api/v1/logistic-request', [
+            'is_reference' => rand(0, 1),
+            'search' => $this->faker->name,
+            'agency_name' => $this->faker->company,
+            'city_code' => $this->faker->numerify('##.##'),
+            'agency_type' => rand(1, 5),
+            'completeness' => rand(0, 1),
+            'source_data' => rand(0, 1),
+            'stock_checking_status' => rand(0, 1),
+            'is_urgency' => rand(0, 1),
+            'is_integrated' => rand(0, 1),
+            'status' => AcceptanceReport::STATUS_REPORTED,
+            'start_date' => date('Y-m-d H:i:s'),
+            'end_date' => date('Y-m-d H:i:s'),
+        ]);
         $response->assertSuccessful();
     }
 
