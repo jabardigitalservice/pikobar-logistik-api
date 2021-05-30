@@ -37,23 +37,30 @@ class LogisticVerificationTest extends TestCase
 
     public function test_verification_code_registration()
     {
-        $agency = Agency::first();
-        $response = $this->json('POST', '/api/v1/verification-registration', ['register_id' => $agency->id]);
+        $response = $this->json('POST', '/api/v1/verification-registration', ['register_id' => $this->agency->id]);
         $response->assertStatus(Response::HTTP_OK);
     }
 
     public function test_verification_resend_code()
     {
-        $agency = Agency::first();
-        $response = $this->json('POST', '/api/v1/verification-resend', ['register_id' => $agency->id]);
+        $response = $this->json('POST', '/api/v1/verification-resend', [
+            'register_id' => $this->agency->id,
+            'reset' => 1,
+        ]);
         $response->assertStatus(Response::HTTP_OK);
+    }
+
+    public function test_verification_code_registration_not_found()
+    {
+        $agencyId = rand(10000, 99999);
+        $response = $this->json('POST', '/api/v1/verification-registration', ['register_id' => $agencyId]);
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function test_verification_confirmation_fail()
     {
-        $agency = Agency::first();
         $response = $this->json('POST', '/api/v1/verification-confirmation', [
-            'register_id' => $agency->id,
+            'register_id' => $this->agency->id,
             'verification_code1' => rand(0,9),
             'verification_code2' => rand(0,9),
             'verification_code3' => rand(0,9),
@@ -65,12 +72,11 @@ class LogisticVerificationTest extends TestCase
 
     public function test_verification_confirmation_success()
     {
-        $agency = Agency::first();
-        $this->logisticVerification = factory(LogisticVerification::class)->create(['agency_id' => $agency->id]);
+        $this->logisticVerification = factory(LogisticVerification::class)->create(['agency_id' => $this->agency->id]);
         $verification = LogisticVerification::first();
         $token = $verification->token;
         $response = $this->json('POST', '/api/v1/verification-confirmation', [
-            'register_id' => $agency->id,
+            'register_id' => $this->agency->id,
             'verification_code1' => substr($token, 0, 1),
             'verification_code2' => substr($token, 1, 1),
             'verification_code3' => substr($token, 2, 1),
