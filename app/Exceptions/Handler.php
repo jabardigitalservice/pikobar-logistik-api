@@ -2,21 +2,25 @@
 
 namespace App\Exceptions;
 
-use Exception;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Mockery\Exception\InvalidOrderException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
+
     /**
      * A list of the exception types that are not reported.
      *
      * @var array
      */
     protected $dontReport = [
-        //
+        InvalidOrderException::class,
     ];
 
     /**
@@ -32,15 +36,16 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return void
+     *
+     * @throws \Exception
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
-        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+        if (app()->bound('sentry') && $this->shouldReport($exception) && !app()->environment('local')) {
             app('sentry')->captureException($exception);
         }
-
         parent::report($exception);
     }
 
@@ -48,22 +53,49 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param  \Throwable  $e
+     * @return \Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \Throwable
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
-        if ($e instanceof AuthenticationException) {
-            return response()->format(401, 'Unauthenticated');
-        } elseif ($e instanceof ModelNotFoundException) {
-            return response()->format(404, 'Object Not Found');
-        } elseif ($e instanceof NotFoundHttpException) {
-            return response()->format(404, 'Url Not Found');
+        if ($messageError = $this->errorException($e)) {
+            return $messageError;
         } else {
-            // ref: https://stackoverflow.com/a/35319899
-            //return self::response_error($e->getMessage(), 500);
             $request->headers->set('Accept', 'application/json');
             return parent::render($request, $e);
         }
+    }
+
+    protected function errorException(Throwable $e)
+    {
+        $error = null;
+        if ($e instanceof AuthenticationException) {
+            $error = $this->errorResponse('Unauthenticated', 401);
+        } elseif ($e instanceof ModelNotFoundException) {
+            $error = $this->errorResponse('Object Not Found', 404);
+        } elseif ($e instanceof NotFoundHttpException) {
+            $error = $this->errorResponse('Url Not Found', 404);
+        } elseif ($e instanceof HttpException) {
+            $error = $this->errorResponse($e->getMessage(), $e->getStatusCode());
+        } elseif ($e instanceof AuthorizationException) {
+            $error = $this->errorResponse($e->getMessage(), 403);
+        }
+        return $error;
+    }
+    /**
+     * errorResponse
+     *
+     * @param  mixed $message
+     * @param  mixed $code
+     * @return void
+     */
+    protected function errorResponse($message, $code)
+    {
+        return response()->json([
+            'error' => $message,
+            'code' => $code,
+        ], $code);
     }
 }

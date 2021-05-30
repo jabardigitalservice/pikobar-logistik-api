@@ -2,7 +2,7 @@
 
 
 ## PIKOBAR LOGISTIK API
-Build with laravel 5.7 + MySql
+Build with laravel 7.x + MySql 5.7
 
 ## Installation
 
