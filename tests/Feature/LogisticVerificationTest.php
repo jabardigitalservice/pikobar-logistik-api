@@ -33,6 +33,7 @@ class LogisticVerificationTest extends TestCase
             'verification_status' => ApplicantStatusEnum::verified(),
             'approval_status' => ApplicantStatusEnum::approved(),
         ]);
+        $this->logisticVerification = factory(LogisticVerification::class)->create(['agency_id' => $this->agency->id]);
     }
 
     public function test_verification_code_registration()
@@ -72,9 +73,7 @@ class LogisticVerificationTest extends TestCase
 
     public function test_verification_confirmation_success()
     {
-        $this->logisticVerification = factory(LogisticVerification::class)->create(['agency_id' => $this->agency->id]);
-        $verification = LogisticVerification::first();
-        $token = $verification->token;
+        $token = $this->logisticVerification->token;
         $response = $this->json('POST', '/api/v1/verification-confirmation', [
             'register_id' => $this->agency->id,
             'verification_code1' => substr($token, 0, 1),
