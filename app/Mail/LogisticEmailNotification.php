@@ -3,7 +3,7 @@
 namespace App\Mail;
 
 use App\Agency;
-use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -42,19 +42,19 @@ class LogisticEmailNotification extends Mailable
     public function build()
     {
         switch($this->status) {
-            case Applicant::STATUS_NOT_VERIFIED:
+            case ApplicantStatusEnum::not_verified():
                 $this->textNotVerified();
                 break;
-            case Applicant::STATUS_REJECTED:
+            case ApplicantStatusEnum::rejected():
                 $this->textRejected();
                 break;
-            case Applicant::STATUS_VERIFIED:
+            case ApplicantStatusEnum::verified():
                 $this->textVerified();
                 break;
-            case Applicant::STATUS_APPROVED:
+                case ApplicantStatusEnum::approved():
                 $this->textApproved();
                 break;
-            case Applicant::STATUS_FINALIZED:
+            case ApplicantStatusEnum::finalized():
                 $this->textFinalized();
                 break;
         }

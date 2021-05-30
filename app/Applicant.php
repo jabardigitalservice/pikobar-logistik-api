@@ -230,17 +230,17 @@ class Applicant extends Model
 
     public function scopeUnverified($query)
     {
-        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_NOT_VERIFIED);
+        return $query->where('approval_status', ApplicantStatusEnum::not_approved())->where('verification_status', ApplicantStatusEnum::not_verified());
     }
 
     public function scopeVerified($query)
     {
-        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_VERIFIED);
+        return $query->where('approval_status', ApplicantStatusEnum::not_approved())->where('verification_status', ApplicantStatusEnum::verified());
     }
 
     public function scopeApproved($query)
     {
-        return $query->where('approval_status', Applicant::STATUS_APPROVED)->where('verification_status', Applicant::STATUS_VERIFIED)->whereNull('finalized_by');
+        return $query->where('approval_status', ApplicantStatusEnum::approved())->where('verification_status', ApplicantStatusEnum::verified())->whereNull('finalized_by');
     }
 
     public function scopeFinal($query)
@@ -250,12 +250,12 @@ class Applicant extends Model
 
     public function scopeVerificationRejected($query)
     {
-        return $query->where('approval_status', Applicant::STATUS_NOT_APPROVED)->where('verification_status', Applicant::STATUS_REJECTED);
+        return $query->where('approval_status', ApplicantStatusEnum::not_approved())->where('verification_status', ApplicantStatusEnum::rejected());
     }
 
     public function scopeApprovalRejected($query)
     {
-        return $query->where('approval_status', Applicant::STATUS_REJECTED)->where('verification_status', Applicant::STATUS_VERIFIED);
+        return $query->where('approval_status', ApplicantStatusEnum::rejected())->where('verification_status', ApplicantStatusEnum::verified());
     }
 
     static function requestSummaryResult($params)

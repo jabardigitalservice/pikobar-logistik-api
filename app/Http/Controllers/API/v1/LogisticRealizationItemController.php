@@ -9,6 +9,7 @@ use App\Validation;
 use DB;
 use JWTAuth;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 use App\Enums\LogisticRealizationItemsStatusEnum;
 use App\PoslogProduct;
 use Log;
@@ -223,10 +224,10 @@ class LogisticRealizationItemController extends Controller
         ];
         return $result;
     }
-    
+
     public function isApplicantExists($request, $method)
     {
-        $applicantCheck = Applicant::where('verification_status', '=', Applicant::STATUS_VERIFIED);
+        $applicantCheck = Applicant::where('verification_status', '=', ApplicantStatusEnum::verified());
         $applicantCheck = $applicantCheck->where('id', $request->applicant_id);
         $applicantCheck = $applicantCheck->where('agency_id', $request->agency_id);
         return $applicantCheck->exists();

@@ -9,6 +9,7 @@ use App\Validation;
 use DB;
 use App\LogisticRealizationItems;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 
 class RequestLetterController extends Controller
 {
@@ -29,9 +30,9 @@ class RequestLetterController extends Controller
                     $query->where('applicants.application_letter_number', 'LIKE', "%{$request->input('application_letter_number')}%");
                 }
             })
-            ->where('verification_status', '=', Applicant::STATUS_VERIFIED)
-            ->where('applicants.approval_status', '=', Applicant::STATUS_APPROVED)
-            ->whereNotNull('applicants.finalized_by');
+                      ->where('verification_status', '=', ApplicantStatusEnum::verified())
+                      ->where('applicants.approval_status', '=', ApplicantStatusEnum::approved())
+                      ->whereNotNull('applicants.finalized_by');
 
             $data = $data->orderBy('request_letters.id')->paginate($limit);
             foreach ($data as $key => $val) {
@@ -117,7 +118,7 @@ class RequestLetterController extends Controller
      *
      * Menampilkan list surat permohonan yang belum didaftarkan di Surat Perintah.
      * opsional, jika parameter request_letter_id dikirim, maka surat permohonan dengan ID tersebut akan tetap muncul di list
-     * 
+     *
      * @param Request $request
      * @return void
      */
@@ -125,16 +126,16 @@ class RequestLetterController extends Controller
     {
         $data = [];
         $request_letter_ignore = $request->input('request_letter_id');
-        try { 
+        try {
             $list = Applicant::select('id', 'application_letter_number', 'verification_status', 'approval_status')
                 ->where(function ($query) use ($request) {
                     if ($request->filled('application_letter_number')) {
                         $query->where('application_letter_number', 'LIKE', "%{$request->input('application_letter_number')}%");
                     }
-                }) 
+                })
                 ->where('is_deleted', '!=', 1)
-                ->where('verification_status', '=', Applicant::STATUS_VERIFIED)
-                ->where('approval_status', '=', Applicant::STATUS_APPROVED)
+                ->where('verification_status', '=', ApplicantStatusEnum::verified())
+                ->where('approval_status', '=', ApplicantStatusEnum::approved())
                 ->where('application_letter_number', '!=', '')
                 ->whereNotNull('finalized_by')
                 ->get();

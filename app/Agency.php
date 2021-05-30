@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ApplicantStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 
@@ -60,8 +61,8 @@ class Agency extends Model
 
     public function scopeSetOrder($query, $request)
     {
-        $isRecommendationPhase = $request->input('verification_status') == Applicant::STATUS_VERIFIED && $request->input('approval_status') == Applicant::STATUS_NOT_APPROVED;
-        $isRealizationPhase = $request->input('verification_status') == Applicant::STATUS_VERIFIED && $request->input('approval_status') == Applicant::STATUS_APPROVED;
+        $isRecommendationPhase = $request->input('verification_status') == ApplicantStatusEnum::verified() && $request->input('approval_status') == ApplicantStatusEnum::not_approved();
+        $isRealizationPhase = $request->input('verification_status') == ApplicantStatusEnum::verified() && $request->input('approval_status') == ApplicantStatusEnum::approved();
         return $query->orderBy('applicants.is_urgency', 'desc')
                      ->orderBy('master_faskes.is_reference', 'desc')
                      ->when($isRealizationPhase, function ($query) {
@@ -194,8 +195,8 @@ class Agency extends Model
     {
         return $query->whereHas('applicant', function ($query) use ($request) {
             $query->when($request->input('is_rejected'), function ($query) {
-                $query->where('verification_status', Applicant::STATUS_REJECTED)
-                    ->orWhere('approval_status', Applicant::STATUS_REJECTED);
+                $query->where('verification_status', ApplicantStatusEnum::rejected())
+                    ->orWhere('approval_status', ApplicantStatusEnum::rejected());
             }, function ($query) use ($request) {
                 $query->when($request->input('verification_status'), function ($query) use ($request) {
                             $query->where('verification_status', $request->input('verification_status'));

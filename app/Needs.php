@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Enums\ApplicantStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use DB;
@@ -187,7 +188,7 @@ class Needs extends Model
         return $query->whereHas('applicant', function($query) use ($request) {
             $query->active()
                 ->createdBetween($request)
-                ->where('verification_status', Applicant::STATUS_VERIFIED)
+                ->where('verification_status', ApplicantStatusEnum::verified())
                 ->filter($request);
         });
     }

@@ -13,6 +13,7 @@ use App\User;
 use App\Notifications\ChangeStatusNotification;
 use JWTAuth;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 use App\LogisticRealizationItems;
 use App\Validation;
 use Illuminate\Support\Facades\DB;
@@ -80,7 +81,7 @@ class LogisticRequest extends Model
             if ($request->hasFile('letter_file')) {
                 $responseData['letter'] = FileUpload::storeLetterFile($request);
             }
-            $email = self::sendEmailNotification($responseData['agency']->id, Applicant::STATUS_NOT_VERIFIED);
+            $email = self::sendEmailNotification($responseData['agency']->id, ApplicantStatusEnum::not_verified());
             $whatsapp = self::sendWhatsappNotification($request, 'surat');
             DB::commit();
             $response = response()->format(200, 'success', new LogisticRequestResource($responseData));
@@ -212,7 +213,7 @@ class LogisticRequest extends Model
         $dataUpdate['verified_at'] = date('Y-m-d H:i:s');
         $applicant = Applicant::updateApplicant($request, $dataUpdate);
         $email = self::sendEmailNotification($applicant->agency_id, $request->verification_status);
-        if ($request->verification_status !== Applicant::STATUS_REJECTED) {
+        if ($request->verification_status !== ApplicantStatusEnum::rejected()) {
             $whatsapp = self::sendEmailNotification($request, 'rekomendasi');
         }
         $response = response()->format(200, 'success', $applicant);
@@ -224,7 +225,7 @@ class LogisticRequest extends Model
         $param['needsSum'] = Needs::where('applicant_id', $request->applicant_id)->count();
         $param['applicantStatus'] = $request->approval_status;
         $param['realizationSum'] = LogisticRealizationItems::where('applicant_id', $request->applicant_id)->whereNull('created_by')->count();
-        $param['checkAllItemsStatus'] = $param['realizationSum'] != $param['needsSum'] && $request->approval_status === Applicant::STATUS_APPROVED;
+        $param['checkAllItemsStatus'] = $param['realizationSum'] != $param['needsSum'] && $request->approval_status === ApplicantStatusEnum::approved();
         $param['notReadyItemsTotal'] = $param['needsSum'] - $param['realizationSum'];
         $param['failMessage'] = 'Sebelum melakukan persetujuan permohonan, pastikan item barang sudah diupdate terlebih dahulu. Jumlah barang yang belum diupdate sebanyak ' . $param['notReadyItemsTotal'] .' item';
         $param['step'] = 'approved';
@@ -235,11 +236,11 @@ class LogisticRequest extends Model
     static function finalProcess(Request $request)
     {
         $param['needsSum'] = Needs::where('applicant_id', $request->applicant_id)->count();
-        $param['applicantStatus'] = Applicant::STATUS_FINALIZED;
+        $param['applicantStatus'] = ApplicantStatusEnum::finalized();
         $param['realizationSum'] = LogisticRealizationItems::where('applicant_id', $request->applicant_id)->whereNotNull('created_by')->count();
         $param['finalSum'] = LogisticRealizationItems::where('applicant_id', $request->applicant_id)->whereNotNull('final_by')->count();
         $param['recommendationItemsTotal'] = $param['needsSum'] + $param['realizationSum'];
-        $param['checkAllItemsStatus'] = $param['finalSum'] != $param['recommendationItemsTotal'] && $request->approval_status === Applicant::STATUS_APPROVED;
+        $param['checkAllItemsStatus'] = $param['finalSum'] != $param['recommendationItemsTotal'] && $request->approval_status === ApplicantStatusEnum::approved();
         $param['notReadyItemsTotal'] = $param['recommendationItemsTotal'] - $param['finalSum'];
         $param['failMessage'] = 'Sebelum menyelesaikan permohonan, pastikan item barang sudah diupdate terlebih dahulu. Jumlah barang yang belum diupdate sebanyak ' . $param['notReadyItemsTotal'] .' item';
         $param['step'] = 'finalized';
@@ -261,7 +262,7 @@ class LogisticRequest extends Model
             $dataUpdate[$param['step'] . '_at'] = date('Y-m-d H:i:s');
             $applicant = Applicant::updateApplicant($request, $dataUpdate);
             $email = self::sendEmailNotification($applicant->agency_id, $param['applicantStatus']);
-            if ($request->approval_status === Applicant::STATUS_APPROVED && $param['step'] == 'approved') {
+            if ($request->approval_status === ApplicantStatusEnum::approved() && $param['step'] == 'approved') {
                 $request['agency_id'] = $applicant->agency_id;
                 $whatsapp = self::sendWhatsappNotification($request, $param['phase']);
             }
