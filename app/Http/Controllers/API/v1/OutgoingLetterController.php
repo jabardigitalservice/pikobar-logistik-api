@@ -27,11 +27,11 @@ class OutgoingLetterController extends Controller
         $limit = $request->input('limit', 10);
         $sortType = $request->input('sort', 'DESC');
         $data = OutgoingLetter::where(function ($query) use ($request) {
-            if ($request->filled('letter_number')) {
+            if ($request->has('letter_number')) {
                 $query->where('letter_number', 'LIKE', "%{$request->input('letter_number')}%");
             }
 
-            if ($request->filled('letter_date')) {
+            if ($request->has('letter_date')) {
                 $query->where('letter_date', $request->input('letter_date'));
             }
 

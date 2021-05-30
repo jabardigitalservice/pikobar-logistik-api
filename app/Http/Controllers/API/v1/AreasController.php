@@ -77,8 +77,8 @@ class AreasController extends Controller
 
     public function getCitiesTotalRequest(Request $request)
     {
-        $startDate = $request->filled('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
-        $endDate = $request->filled('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
+        $startDate = $request->has('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
+        $endDate = $request->has('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
 
         try {
             $query = City::withCount([
@@ -89,7 +89,7 @@ class AreasController extends Controller
                             ->whereBetween('applicants.created_at', [$startDate, $endDate]);
                 }
                 ]);
-            if ($request->filled('sort')) {
+            if ($request->has('sort')) {
                 $query->orderBy('agency_count', $request->input('sort'));
             }
             $data = $query->get();

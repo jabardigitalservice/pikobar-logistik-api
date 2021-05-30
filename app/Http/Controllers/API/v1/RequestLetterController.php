@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers\API\v1;
 
@@ -22,10 +22,10 @@ class RequestLetterController extends Controller
             $defaultField = $this->defaultField();
             $defaultField[] = 'applicants.verification_status';
             $data = RequestLetter::select($defaultField);
-            $data = $this->defaultJoinTable($data);                
+            $data = $this->defaultJoinTable($data);
             $data = $data->where('request_letters.outgoing_letter_id', $request->outgoing_letter_id)
             ->where(function ($query) use ($request) {
-                if ($request->filled('application_letter_number')) {
+                if ($request->has('application_letter_number')) {
                     $query->where('applicants.application_letter_number', 'LIKE', "%{$request->input('application_letter_number')}%");
                 }
             })
@@ -46,7 +46,7 @@ class RequestLetterController extends Controller
     {
         $data = [];
         $defaultField = $this->defaultField();
-        $requestLetter = RequestLetter::select($defaultField);            
+        $requestLetter = RequestLetter::select($defaultField);
         $requestLetter = $this->defaultJoinTable($requestLetter);
         $requestLetter = $requestLetter->where('request_letters.id', $id);
         $requestLetter = $requestLetter->orderBy('request_letters.id')->get();
@@ -67,7 +67,7 @@ class RequestLetterController extends Controller
         $response = Validation::validate($request, $param);
         if ($response->getStatusCode() === 200) {
             DB::beginTransaction();
-            try {                  
+            try {
                 $request_letter = $this->requestLetterStore($request);
                 $response = array(
                     'request_letter' => $request_letter,
@@ -87,7 +87,7 @@ class RequestLetterController extends Controller
         $param = [ 'applicant_id' => 'required|numeric' ];
         $response = Validation::validate($request, $param);
         if ($response->getStatusCode() === 200) {
-            try {                  
+            try {
                 $data = RequestLetter::find($id);
                 $data->applicant_id = $request->applicant_id;
                 $data->save();
@@ -102,7 +102,7 @@ class RequestLetterController extends Controller
     public function destroy($id)
     {
         DB::beginTransaction();
-        try {   
+        try {
             $deleteRealization = RequestLetter::where('id', $id)->delete();
             DB::commit();
         } catch (\Exception $exception) {
@@ -117,7 +117,7 @@ class RequestLetterController extends Controller
      *
      * Menampilkan list surat permohonan yang belum didaftarkan di Surat Perintah.
      * opsional, jika parameter request_letter_id dikirim, maka surat permohonan dengan ID tersebut akan tetap muncul di list
-     * 
+     *
      * @param Request $request
      * @return void
      */
@@ -125,13 +125,13 @@ class RequestLetterController extends Controller
     {
         $data = [];
         $request_letter_ignore = $request->input('request_letter_id');
-        try { 
+        try {
             $list = Applicant::select('id', 'application_letter_number', 'verification_status', 'approval_status')
                 ->where(function ($query) use ($request) {
-                    if ($request->filled('application_letter_number')) {
+                    if ($request->has('application_letter_number')) {
                         $query->where('application_letter_number', 'LIKE', "%{$request->input('application_letter_number')}%");
                     }
-                }) 
+                })
                 ->where('is_deleted', '!=', 1)
                 ->where('verification_status', '=', Applicant::STATUS_VERIFIED)
                 ->where('approval_status', '=', Applicant::STATUS_APPROVED)
@@ -149,30 +149,30 @@ class RequestLetterController extends Controller
 
     /**
      * getRealizationData
-     * 
+     *
      */
     public function getRealizationData($request_letter)
     {
-        $realization_total = LogisticRealizationItems::where('agency_id', $request_letter->agency_id) 
+        $realization_total = LogisticRealizationItems::where('agency_id', $request_letter->agency_id)
         ->where('applicant_id', $request_letter->applicant_id)
         ->sum('realization_quantity');
 
-        
-        $realization = LogisticRealizationItems::where('agency_id', $request_letter->agency_id) 
+
+        $realization = LogisticRealizationItems::where('agency_id', $request_letter->agency_id)
         ->where('applicant_id', $request_letter->applicant_id)
         ->whereNotNull('realization_date')
         ->first();
-        
+
         $request_letter->realization_total = $realization_total;
         $request_letter->realization_date = $realization['realization_date'];
-        
+
         $data = $request_letter;
-        return $data; 
+        return $data;
     }
 
     /**
      * Store Request Letter
-     * 
+     *
      */
     public function requestLetterStore($request)
     {
@@ -180,7 +180,7 @@ class RequestLetterController extends Controller
         foreach (json_decode($request->input('letter_request'), true) as $key => $value) {
             $request_letter = RequestLetter::firstOrCreate(
                 [
-                    'outgoing_letter_id' => $request->input('outgoing_letter_id'), 
+                    'outgoing_letter_id' => $request->input('outgoing_letter_id'),
                     'applicant_id' => $value['applicant_id']
                 ]
             );
@@ -201,14 +201,14 @@ class RequestLetterController extends Controller
             if ($request_letter_ignore == $value['id']) {
                 $data[] = $value;
             } else {
-                $find = RequestLetter::where('applicant_id', $value['id'])->first();          
+                $find = RequestLetter::where('applicant_id', $value['id'])->first();
                 if (!$find) {
                     $data[] = $value;
                 }
             }
         }
 
-        return $data; 
+        return $data;
     }
 
     public function defaultField()
