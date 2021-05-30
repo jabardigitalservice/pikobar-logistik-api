@@ -2,14 +2,15 @@
 
 namespace App\Exceptions;
 
+use Throwable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
 use Mockery\Exception\InvalidOrderException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -72,15 +73,15 @@ class Handler extends ExceptionHandler
     {
         $error = null;
         if ($e instanceof AuthenticationException) {
-            $error = $this->errorResponse('Unauthenticated', 401);
+            $error = $this->errorResponse('Unauthenticated', Response::HTTP_UNAUTHORIZED);
         } elseif ($e instanceof ModelNotFoundException) {
-            $error = $this->errorResponse('Object Not Found', 404);
+            $error = $this->errorResponse('Object Not Found', Response::HTTP_NOT_FOUND);
         } elseif ($e instanceof NotFoundHttpException) {
-            $error = $this->errorResponse('Url Not Found', 404);
+            $error = $this->errorResponse('Url Not Found', Response::HTTP_NOT_FOUND);
         } elseif ($e instanceof HttpException) {
             $error = $this->errorResponse($e->getMessage(), $e->getStatusCode());
         } elseif ($e instanceof AuthorizationException) {
-            $error = $this->errorResponse($e->getMessage(), 403);
+            $error = $this->errorResponse($e->getMessage(), Response::HTTP_FORBIDDEN);
         }
         return $error;
     }

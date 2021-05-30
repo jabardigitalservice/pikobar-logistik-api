@@ -54,8 +54,8 @@ class MasterFaskes extends Model
 
     static function getFaskesList($request)
     {
-        $limit = $request->has('limit') ? $request->input('limit') : 20;
-        $sort = $request->has('sort') ? $request->input('sort') : 'asc';
+        $limit = $request->input('limit', 20);
+        $sort = $request->input('sort', 'asc');
 
         $data = self::with('masterFaskesType')
         ->where(function ($query) use ($request) {

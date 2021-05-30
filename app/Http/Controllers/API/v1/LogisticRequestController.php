@@ -235,7 +235,7 @@ class LogisticRequestController extends Controller
             'applicant_file' => 'required|mimes:jpeg,jpg,png,pdf|max:10240'
         ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $request->merge(['applicant_id' => $id]);
             $response = FileUpload::storeApplicantFile($request);
             $applicant = Applicant::where('id', '=', $request->applicant_id)->update(['file' => $response->id]);

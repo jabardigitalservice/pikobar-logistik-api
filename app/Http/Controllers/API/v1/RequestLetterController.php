@@ -9,6 +9,7 @@ use App\Validation;
 use DB;
 use App\LogisticRealizationItems;
 use App\Applicant;
+use Illuminate\Http\Response;
 
 class RequestLetterController extends Controller
 {
@@ -65,7 +66,7 @@ class RequestLetterController extends Controller
             'letter_request' => 'required',
         ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             DB::beginTransaction();
             try {
                 $request_letter = $this->requestLetterStore($request);
@@ -86,7 +87,7 @@ class RequestLetterController extends Controller
     {
         $param = [ 'applicant_id' => 'required|numeric' ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             try {
                 $data = RequestLetter::find($id);
                 $data->applicant_id = $request->applicant_id;
@@ -132,7 +133,7 @@ class RequestLetterController extends Controller
                         $query->where('application_letter_number', 'LIKE', "%{$request->input('application_letter_number')}%");
                     }
                 })
-                ->where('is_deleted', '!=', 1)
+                ->active()
                 ->where('verification_status', '=', Applicant::STATUS_VERIFIED)
                 ->where('approval_status', '=', Applicant::STATUS_APPROVED)
                 ->where('application_letter_number', '!=', '')
