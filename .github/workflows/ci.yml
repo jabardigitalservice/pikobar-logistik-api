@@ -20,7 +20,7 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE:  db_test_laravel
+          MYSQL_DATABASE:  pikobar
         ## map the "external" 33306 port with the "internal" 3306
         ports:
           - 33306:3306
