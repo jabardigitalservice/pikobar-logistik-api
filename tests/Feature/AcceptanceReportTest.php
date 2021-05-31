@@ -129,6 +129,15 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
+    public function test_get_acceptance_report_evidence()
+    {
+        $id = rand();
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report-evidence', [
+            'acceptance_report_id' => $id
+        ]);
+        $response->assertSuccessful();
+    }
+
     public function test_get_acceptance_report_detail()
     {
         $id = rand();
