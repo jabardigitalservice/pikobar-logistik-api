@@ -61,7 +61,6 @@ jobs:
         DB_DATABASE: pikobar
         DB_PORT: 33306
         DB_USERNAME: root
-        DB_PASSWORD: root
 
       run: php artisan migrate
 
@@ -78,7 +77,6 @@ jobs:
         DB_DATABASE: pikobar
         DB_PORT: 33306
         DB_USERNAME: root
-        DB_PASSWORD: root
 
       run: vendor/bin/phpunit --testdox
 
