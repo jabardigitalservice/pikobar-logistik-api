@@ -187,6 +187,76 @@ class LogisticRequestTest extends TestCase
             'agency_id' => $this->agency->id,
         ]);
         $response->assertSuccessful();
+    }
 
+    public function test_logistic_request_summary()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request-summary');
+        $response->assertSuccessful();
+    }
+
+    public function test_post_request_verifying()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/verification', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'verification_status' => ApplicantStatusEnum::verified(),
+            'url' => 'http:://localhost/#',
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_post_request_approval()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/approval', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'approval_status' => ApplicantStatusEnum::approved(),
+            'url' => 'http:://localhost/#',
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_post_request_final()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/final', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'approval_status' => ApplicantStatusEnum::approved(),
+            'url' => 'http:://localhost/#',
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_post_request_set_urgency()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/urgency', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'is_urgency' => rand(0, 1),
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_post_request_return_status()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/return', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'step' => 'final',
+            'url' => 'http:://localhost/#',
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_put_request_update()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'master_faskes_id' => $this->masterFaskes->id,
+            'update_type' => 1
+        ]);
+        $response->assertSuccessful();
     }
 }
