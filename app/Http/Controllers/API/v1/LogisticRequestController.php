@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Needs;
 use App\Agency;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
 use App\LogisticRequest;
 use App\FileUpload;
 use App\Imports\LogisticImport;
@@ -30,9 +31,9 @@ class LogisticRequestController extends Controller
     public function finalList(Request $request)
     {
         $syncSohLocation = \App\PoslogProduct::syncSohLocation();
-        $request->merge(['verification_status' => Applicant::STATUS_VERIFIED]);
-        $request->merge(['approval_status' => Applicant::STATUS_APPROVED]);
-        $request->merge(['finalized_by' => Applicant::STATUS_FINALIZED]);
+        $request->merge(['verification_status' => ApplicantStatusEnum::verified()]);
+        $request->merge(['approval_status' => ApplicantStatusEnum::approved()]);
+        $request->merge(['finalized_by' => ApplicantStatusEnum::finalized()]);
         // Cut Off Logistic Data
         $cutOffDateTimeState = \Carbon\Carbon::createFromFormat(config('wmsjabar.cut_off_format'), config('wmsjabar.cut_off_datetime'))->toDateTimeString();
         $cutOffDateTime = $request->input('cut_off_datetime', $cutOffDateTimeState);
