@@ -16,7 +16,7 @@ use Illuminate\Http\Response;
 class AcceptanceReportTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
 
     public function setUp(): void
     {

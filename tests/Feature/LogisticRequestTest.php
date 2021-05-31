@@ -17,7 +17,7 @@ use Illuminate\Http\UploadedFile;
 class LogisticRequestTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
 
     public function setUp(): void
     {

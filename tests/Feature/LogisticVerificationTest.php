@@ -15,7 +15,7 @@ use Illuminate\Http\Response;
 class LogisticVerificationTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
 
     public function setUp(): void
     {

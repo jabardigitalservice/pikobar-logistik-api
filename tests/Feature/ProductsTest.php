@@ -12,7 +12,7 @@ use Illuminate\Http\Response;
 class ProductsTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
 
     public function setUp(): void
     {

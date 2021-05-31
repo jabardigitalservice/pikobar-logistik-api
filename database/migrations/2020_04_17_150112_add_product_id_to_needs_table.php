@@ -17,7 +17,7 @@ class AddProductIdToNeedsTable extends Migration
             !Schema::hasColumn('needs', 'product_id')
         ) {
             Schema::table('needs', function (Blueprint $table) {
-                $table->string('product_id')->after('applicant_id');
+                $table->string('product_id')->after('applicant_id')->nullable();
             });
         }
     }

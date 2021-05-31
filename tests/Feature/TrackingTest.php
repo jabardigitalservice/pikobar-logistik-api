@@ -12,7 +12,8 @@ use Illuminate\Http\Response;
 class TrackingTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
+
     public function setUp(): void
     {
         parent::setUp();

@@ -17,7 +17,7 @@ class AddMasterFaskesIdToAgencyId extends Migration
             !Schema::hasColumn('agency', 'master_faskes_id')
         ) {
             Schema::table('agency', function (Blueprint $table) {
-                $table->integer('master_faskes_id')->after('id');
+                $table->integer('master_faskes_id')->after('id')->nullable();
             });
         }
     }

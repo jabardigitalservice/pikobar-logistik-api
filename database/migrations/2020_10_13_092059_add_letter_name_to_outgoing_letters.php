@@ -14,7 +14,7 @@ class AddLetterNameToOutgoingLetters extends Migration
     public function up()
     {
         Schema::table('outgoing_letters', function (Blueprint $table) {
-            $table->string('letter_name');
+            $table->string('letter_name')->nullable();
             $table->string('letter_number')->nullable()->change();
         });
     }

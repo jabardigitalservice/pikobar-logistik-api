@@ -14,7 +14,7 @@ class CreateMasterFaskesTable extends Migration
     public function up()
     {
         Schema::create('master_faskes', function (Blueprint $table) {
-            $table->integer('id')->unique();
+            $table->increments('id')->unique();
             $table->integer('id_tipe_faskes');
             $table->string('nama_faskes');
             $table->string('kode_kab_bps')->nullable();

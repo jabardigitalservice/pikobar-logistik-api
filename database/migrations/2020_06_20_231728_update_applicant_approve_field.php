@@ -14,7 +14,7 @@ class UpdateApplicantApproveField extends Migration
     public function up()
     {
         Schema::table('applicants', function (Blueprint $table) {
-            $table->string('application_letter_number')->after('stock_checking_status');
+            $table->string('application_letter_number')->after('stock_checking_status')->nullable();
         });
     }
 

@@ -14,7 +14,7 @@ class AddColumnTableRecipient extends Migration
     public function up()
     {
         Schema::table('recipients', function (Blueprint $table) {
-            $table->string('pic_name');
+            $table->string('pic_name')->default('');
         });
     }
 

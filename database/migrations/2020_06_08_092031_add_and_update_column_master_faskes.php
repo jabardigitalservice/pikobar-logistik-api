@@ -14,7 +14,7 @@ class AddAndUpdateColumnMasterFaskes extends Migration
     public function up()
     {
         Schema::table('master_faskes', function (Blueprint $table) {
-            $table->string('nomor_izin_sarana')->after('nomor_registrasi');
+            $table->string('nomor_izin_sarana')->after('nomor_registrasi')->nullable();
             $table->string('nomor_registrasi')->nullable()->change();
         });
     }
