@@ -147,7 +147,6 @@ Route::namespace('API\v1')->prefix('v1')->group(function () {
         Route::post('/logistic-request-non-public', 'LogisticRequestController@store')->name('non-public');
         Route::post('/logistic-request/approval', 'LogisticRequestController@changeStatus')->name('approval');
         Route::post('/logistic-request/final', 'LogisticRequestController@changeStatus')->name('final');
-        Route::post('/logistic-request/stock-checking', 'LogisticRequestController@stockCheking');
         Route::post('/logistic-request/letter/{id}', 'LogisticRequestController@uploadLetter');
         Route::post('/logistic-request/identity/{id}', 'LogisticRequestController@uploadApplicantFile');
         Route::post('/logistic-request/urgency', 'LogisticRequestController@urgencyChange');

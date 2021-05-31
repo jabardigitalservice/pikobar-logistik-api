@@ -181,16 +181,6 @@ class LogisticRequestController extends Controller
         return $changeStatusParam;
     }
 
-    public function stockCheking(Request $request)
-    {
-        $param = [
-            'applicant_id' => 'required|numeric',
-            'stock_checking_status' => 'required|string'
-        ];
-        $applicant = (Validation::validate($request, $param)) ? $this->updateApplicant($request) : null;
-        return response()->format(Response::HTTP_OK, 'success', $applicant);
-    }
-
     public function masterFaskesCheck($request)
     {
         return $request = (!MasterFaskes::find($request->master_faskes_id)) ? $this->alloableAgencyType($request) : $request;
