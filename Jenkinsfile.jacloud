@@ -49,7 +49,8 @@ def secretsProd = [
     [envVar: 'WMS_JABAR_API_KEY', vaultKey: 'WMS_JABAR_API_KEY'],
     [envVar: 'DASHBOARD_PIKOBAR_API_BASE_URL', vaultKey: 'DASHBOARD_PIKOBAR_API_BASE_URL'],
     [envVar: 'DASHBOARD_PIKOBAR_API_KEY', vaultKey: 'DASHBOARD_PIKOBAR_API_KEY'],
-    [envVar: 'SENTRY_LARAVEL_DSN', vaultKey: 'SENTRY_LARAVEL_DSN']]],
+    [envVar: 'SENTRY_LARAVEL_DSN', vaultKey: 'SENTRY_LARAVEL_DSN'],
+    [envVar: 'SENTRY_TRACES_SAMPLE_RATE', vaultKey: 'SENTRY_TRACES_SAMPLE_RATE']]],
 ]
 
 def configuration = [vaultUrl: "${VAULT_JABAR_CLOUD}",  vaultCredentialId: 'approle-logistik', engineVersion: 2]
@@ -198,6 +199,7 @@ pipeline {
                         sh 'sed -i "s/%DASHBOARD_PIKOBAR_API_KEY%/${DASHBOARD_PIKOBAR_API_KEY}/g" kubernetes/secret-logistik-api.yaml'
 
                         sh 'sed -i "s/%SENTRY_LARAVEL_DSN%/${SENTRY_LARAVEL_DSN}/g" kubernetes/configmap-logistik-api.yaml'
+                        sh 'sed -i "s/%SENTRY_TRACES_SAMPLE_RATE%/${SENTRY_TRACES_SAMPLE_RATE}/g" kubernetes/configmap-logistik-api.yaml'
 
 
                         sh '''
