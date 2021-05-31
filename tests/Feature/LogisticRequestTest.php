@@ -178,4 +178,15 @@ class LogisticRequestTest extends TestCase
         ]);
         $response->assertSuccessful();
     }
+
+    public function test_logistic_request_needs()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request/need/list', [
+            'page' => 1,
+            'limit' => 10,
+            'agency_id' => $this->agency->id,
+        ]);
+        $response->assertSuccessful();
+
+    }
 }
