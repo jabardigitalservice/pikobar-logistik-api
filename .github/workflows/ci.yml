@@ -58,9 +58,9 @@ jobs:
 # Set environment
       env:
         DB_CONNECTION: mysql
-        DB_DATABASE: db_test_laravel
+        DB_DATABASE: pikobar
         DB_PORT: 33306
-        DB_USER: root
+        DB_USERNAME: root
         DB_PASSWORD: root
 
       run: php artisan migrate
@@ -75,9 +75,9 @@ jobs:
 # Set environment
       env:
         DB_CONNECTION: mysql
-        DB_DATABASE: db_test_laravel
+        DB_DATABASE: pikobar
         DB_PORT: 33306
-        DB_USER: root
+        DB_USERNAME: root
         DB_PASSWORD: root
 
       run: vendor/bin/phpunit --testdox
