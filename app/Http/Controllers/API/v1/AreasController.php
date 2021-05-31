@@ -9,6 +9,8 @@ use App\City;
 use App\Subdistrict;
 use App\Village;
 use App\Applicant;
+use App\Enums\ApplicantStatusEnum;
+use Illuminate\Http\Response;
 
 class AreasController extends Controller
 {
@@ -25,11 +27,11 @@ class AreasController extends Controller
         $query = City::where('kemendagri_provinsi_kode', $idProvience)
                         ->orderBy('kemendagri_kabupaten_nama', 'asc');
 
-        if ($request->query('city_code')) {
-            $query->where('kemendagri_kabupaten_kode', '=', $request->query('city_code'));
+        if ($request->has('city_code')) {
+            $query->where('kemendagri_kabupaten_kode', '=', $request->input('city_code'));
         }
 
-        return response()->format(200, true, $query->get());
+        return response()->format(Response::HTTP_OK, true, $query->get());
     }
 
     public function subArea(Request $request)
@@ -43,19 +45,24 @@ class AreasController extends Controller
         }
         $query->orderBy($param['orderBy'], 'asc');
 
-        $valueCodeLevelOne = $request->query($param['requestQueryLevelOne']) ? $request->query($param['requestQueryLevelOne']) : $param['code'];
+        $valueCodeLevelOne = $request->has($param['requestQueryLevelOne']) ? $request->input($param['requestQueryLevelOne']) : $param['code'];
         $query->where($param['whereCodeLevelOne'], '=', $valueCodeLevelOne);
 
-        if ($request->query($param['requestQueryLevelTwo'])) {
-            $query->where($param['whereCodeLevelTwo'], '=', $request->query($param['requestQueryLevelTwo']));
+        if ($request->has($param['requestQueryLevelTwo'])) {
+            $query->where($param['whereCodeLevelTwo'], '=', $request->input($param['requestQueryLevelTwo']));
         }
 
-        return response()->format(200, true, $query->get());
+        return response()->format(Response::HTTP_OK, true, $query->get());
     }
 
     public function getParamAreas($areasType)
     {
-
+        $param['orderBy'] = 'kemendagri_kecamatan_nama';
+        $param['whereCodeLevelOne'] = 'kemendagri_kabupaten_kode';
+        $param['code'] = '32.01';
+        $param['requestQueryLevelOne'] = 'city_code';
+        $param['whereCodeLevelTwo'] = 'kemendagri_kecamatan_kode';
+        $param['requestQueryLevelTwo'] = 'subdistrict_code';
         if ($areasType === 'village') {
             $param['orderBy'] = 'kemendagri_desa_nama';
             $param['whereCodeLevelOne'] = 'kemendagri_kecamatan_kode';
@@ -63,13 +70,6 @@ class AreasController extends Controller
             $param['requestQueryLevelOne'] = 'subdistrict_code';
             $param['whereCodeLevelTwo'] = 'kemendagri_desa_kode';
             $param['requestQueryLevelTwo'] = 'village_code';
-        } else {
-            $param['orderBy'] = 'kemendagri_kecamatan_nama';
-            $param['whereCodeLevelOne'] = 'kemendagri_kabupaten_kode';
-            $param['code'] = '32.01';
-            $param['requestQueryLevelOne'] = 'city_code';
-            $param['whereCodeLevelTwo'] = 'kemendagri_kecamatan_kode';
-            $param['requestQueryLevelTwo'] = 'subdistrict_code';
         }
 
         return $param;
@@ -80,23 +80,20 @@ class AreasController extends Controller
         $startDate = $request->has('start_date') ? $request->input('start_date') . ' 00:00:00' : '2020-01-01 00:00:00';
         $endDate = $request->has('end_date') ? $request->input('end_date') . ' 23:59:59' : date('Y-m-d H:i:s');
 
-        try {
-            $query = City::withCount([
-                'agency' => function ($query) use ($startDate, $endDate) {
-                    return $query->join('applicants', 'applicants.agency_id', 'agency.id')
-                            ->where('applicants.verification_status', Applicant::STATUS_VERIFIED)
-                            ->where('applicants.is_deleted', '!=', 1)
-                            ->whereBetween('applicants.created_at', [$startDate, $endDate]);
-                }
-                ]);
-            if ($request->has('sort')) {
-                $query->orderBy('agency_count', $request->input('sort'));
+        $query = City::withCount([
+            'agency' => function ($query) use ($startDate, $endDate) {
+                return $query->join('applicants', 'applicants.agency_id', 'agency.id')
+                        ->where('applicants.verification_status', ApplicantStatusEnum::verified())
+                        ->where('applicants.is_deleted', '!=', 1)
+                        ->whereBetween('applicants.created_at', [$startDate, $endDate]);
             }
-            $data = $query->get();
-        } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            ]);
+        if ($request->has('sort')) {
+            $query->orderBy('agency_count', $request->input('sort'));
         }
-        return response()->format(200, 'success', $data);
+        $data = $query->get();
+
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
 }
