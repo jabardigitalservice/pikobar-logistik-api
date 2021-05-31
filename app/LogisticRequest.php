@@ -178,10 +178,6 @@ class LogisticRequest extends Model
                 $model = Applicant::where('id', $request->applicant_id)->where('agency_id', $request->agency_id)->firstOrFail();
                 $request = self::setRequestEditLetter($request);
                 break;
-            default:
-                $model = Agency::findOrFail($request->agency_id);
-                $request['agency_name'] = MasterFaskes::getFaskesName($request);
-                break;
         }
         unset($request['id']);
         $model->fill($request->all());

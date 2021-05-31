@@ -23,10 +23,11 @@ class LogisticRequestTest extends TestCase
     {
         parent::setUp();
         $this->admin = factory(User::class)->create();
-        $this->masterFaskes = factory(MasterFaskes::class)->create();
+        $this->faskes = factory(MasterFaskes::class)->create();
+        $this->nonFaskes = factory(MasterFaskes::class)->create(['id_tipe_faskes' => rand(4, 5)]);
         $this->agency = factory(Agency::class)->create([
-            'master_faskes_id' => $this->masterFaskes->id,
-            'agency_type' => $this->masterFaskes->id_tipe_faskes,
+            'master_faskes_id' => $this->faskes->id,
+            'agency_type' => $this->faskes->id_tipe_faskes,
         ]);
         $this->applicant = factory(Applicant::class)->create(['agency_id' => $this->agency->id]);
     }
@@ -142,7 +143,7 @@ class LogisticRequestTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_store_logistic_request()
+    public function test_store_logistic_request_faskes()
     {
         $logisticItems[] = [
             'usage' => $this->faker->text,
@@ -154,19 +155,56 @@ class LogisticRequestTest extends TestCase
         ];
 
         $response = $this->json('POST', '/api/v1/logistic-request', [
-            'agency_type' => $this->masterFaskes->id_tipe_faskes,
-            'agency_name' => $this->masterFaskes->nama_faskes,
+            'agency_type' => $this->faskes->id_tipe_faskes,
+            'agency_name' => $this->faskes->nama_faskes,
             'phone_number' => $this->faker->numerify('081#########'),
             'location_district_code' => $this->faker->numerify('##.##'),
             'location_subdistrict_code' => $this->faker->numerify('##.##.##'),
             'location_village_code' => $this->faker->numerify('##.##.##.####'),
             'location_address' => $this->faker->address,
             'applicant_name' => $this->faker->name,
-            'applicants_office' => $this->faker->jobTitle . ' ' . $this->masterFaskes->nama_faskes,
+            'applicants_office' => $this->faker->jobTitle . ' ' . $this->faskes->nama_faskes,
             'email' => $this->faker->email,
             'primary_phone_number' => $this->faker->numerify('081#########'),
             'secondary_phone_number' => $this->faker->numerify('081#########'),
-            'master_faskes_id' => $this->masterFaskes->id,
+            'master_faskes_id' => $this->faskes->id,
+            'logistic_request' => json_encode($logisticItems),
+            'letter_file' => UploadedFile::fake()->image('letter_file.jpg'),
+            'applicant_file' => UploadedFile::fake()->image('applicant_file.jpg'),
+            'application_letter_number' => $this->faker->numerify('SURAT/' . date('Y/m/d') . '/' . $this->faker->company . '/####'),
+            'total_covid_patients' => rand(0, 100),
+            'total_isolation_room' => rand(0, 100),
+            'total_bedroom' => rand(0, 100),
+            'total_health_worker' => rand(0, 100)
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_store_logistic_request_non_faskes()
+    {
+        $logisticItems[] = [
+            'usage' => $this->faker->text,
+            'priority' => 'Menengah',
+            'product_id' => rand(1,200),
+            'brand' => $this->faker->text,
+            'quantity' => rand(1,99999),
+            'unit' => 'PCS'
+        ];
+
+        $response = $this->json('POST', '/api/v1/logistic-request', [
+            'agency_type' => $this->nonFaskes->id_tipe_faskes,
+            'agency_name' => $this->nonFaskes->nama_faskes,
+            'phone_number' => $this->faker->numerify('081#########'),
+            'location_district_code' => $this->faker->numerify('##.##'),
+            'location_subdistrict_code' => $this->faker->numerify('##.##.##'),
+            'location_village_code' => $this->faker->numerify('##.##.##.####'),
+            'location_address' => $this->faker->address,
+            'applicant_name' => $this->faker->name,
+            'applicants_office' => $this->faker->jobTitle . ' ' . $this->nonFaskes->nama_faskes,
+            'email' => $this->faker->email,
+            'primary_phone_number' => $this->faker->numerify('081#########'),
+            'secondary_phone_number' => $this->faker->numerify('081#########'),
+            'master_faskes_id' => $this->nonFaskes->id,
             'logistic_request' => json_encode($logisticItems),
             'letter_file' => UploadedFile::fake()->image('letter_file.jpg'),
             'applicant_file' => UploadedFile::fake()->image('applicant_file.jpg'),
@@ -249,13 +287,37 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_put_request_update()
+    public function test_put_request_update_agency_data()
     {
         $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,
-            'master_faskes_id' => $this->masterFaskes->id,
+            'master_faskes_id' => $this->faskes->id,
             'update_type' => 1
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_put_request_update_applicant_data()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'master_faskes_id' => $this->faskes->id,
+            'applicant_file' => UploadedFile::fake()->image('applicant_file_update.jpg'),
+            'update_type' => 2
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function test_put_request_update_letter_data()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'master_faskes_id' => $this->faskes->id,
+            'letter_file' => UploadedFile::fake()->image('letter_file_update.jpg'),
+            'update_type' => 3
         ]);
         $response->assertSuccessful();
     }

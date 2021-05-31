@@ -16,7 +16,7 @@ use Faker\Generator as Faker;
 $factory->define(App\MasterFaskes::class, function (Faker $faker) {
     $faskesName = 'FASKES ' . $faker->state . ' ' . $faker->company;
     return [
-        'id_tipe_faskes' => rand(1, 5),
+        'id_tipe_faskes' => rand(1, 3),
         'verification_status' => 'verified',
         'nama_faskes' => $faskesName,
         'poslog_id' => $faker->numerify('219000####'),
