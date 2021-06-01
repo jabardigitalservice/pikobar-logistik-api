@@ -299,7 +299,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function testPostRequestReturnStatus()
+    public function testPostRequestReturnStatusFromFinalPhase()
     {
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/return', [
             'agency_id' => $this->applicant->id,
