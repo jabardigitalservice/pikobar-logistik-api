@@ -392,4 +392,18 @@ class LogisticRequestTest extends TestCase
         ]);
         $response->assertSuccessful();
     }
+
+    public function testPostUploadLogisticRequestLetter()
+    {
+        Storage::fake('photos');
+
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/letter/' . $this->applicant->agency_id, [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'master_faskes_id' => $this->faskes->id,
+            'letter_file' => UploadedFile::fake()->image('letter_file_update.jpg'),
+            'update_type' => 3
+        ]);
+        $response->assertSuccessful();
+    }
 }
