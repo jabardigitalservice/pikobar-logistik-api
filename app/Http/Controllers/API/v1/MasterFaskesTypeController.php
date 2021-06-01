@@ -69,7 +69,7 @@ class MasterFaskesTypeController extends Controller
                             });
                         }])
                         ->orderBy('total', 'desc')
-                        ->firstOrFail();
+                        ->first();
 
         $agencyTotal = Agency::select('agency_type')
                             ->whereHas('applicant', function($query) use ($request) {

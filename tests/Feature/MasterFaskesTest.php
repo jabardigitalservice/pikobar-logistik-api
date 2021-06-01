@@ -76,4 +76,25 @@ class MasterFaskesTest extends TestCase
         ]);
         $response->assertSuccessful();
     }
+
+    public function testGetMasterFaskesTypeList()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/master-faskes-type', [
+            'is_imported' => rand(0, 1),
+            'non_public' => rand(0, 1),
+        ]);
+        $response->assertSuccessful();
+    }
+
+    public function testGetFaskesTypeTotalRequest()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/faskes-type-total-request');
+        $response->assertSuccessful();
+    }
+
+    public function testGetFaskesTypeTopRequest()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/faskes-type-top-request');
+        $response->assertSuccessful();
+    }
 }
