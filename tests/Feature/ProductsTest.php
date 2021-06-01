@@ -22,7 +22,7 @@ class ProductsTest extends TestCase
         $this->product = factory(Product::class)->create();
     }
 
-    public function test_get_products()
+    public function testGetProducts()
     {
         $response = $this->json('GET', '/api/v1/landing-page-registration/products', [
             'limit' => 10,
@@ -32,31 +32,31 @@ class ProductsTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_get_product_by_id()
+    public function testGetProductById()
     {
         $response = $this->actingAs($this->admin, 'api')->get('/api/v1/products/' . $this->product->id);
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_get_product_unit_by_id()
+    public function testGetProductUnitById()
     {
         $response = $this->get('/api/v1/landing-page-registration/product-unit/' . $this->product->id);
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_get_products_total_request()
+    public function testGetProductsTotalRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/products-total-request');
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_get_products_total_request_paginate()
+    public function testGetProductsTotalRequestPaginate()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/products-total-request', ['limit' => 10]);
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_get_products_top_request()
+    public function testGetProductsTopRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->get('/api/v1/products-top-request');
         $response->assertStatus(Response::HTTP_OK);
