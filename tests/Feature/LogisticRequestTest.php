@@ -13,6 +13,9 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class LogisticRequestTest extends TestCase
 {
@@ -145,6 +148,10 @@ class LogisticRequestTest extends TestCase
 
     public function test_store_logistic_request_faskes()
     {
+        Storage::fake('photos');
+        Mail::fake();
+        Notification::fake();
+
         $logisticItems[] = [
             'usage' => $this->faker->text,
             'priority' => 'Menengah',
@@ -182,6 +189,10 @@ class LogisticRequestTest extends TestCase
 
     public function test_store_logistic_request_non_faskes()
     {
+        Storage::fake('photos');
+        Mail::fake();
+        Notification::fake();
+
         $logisticItems[] = [
             'usage' => $this->faker->text,
             'priority' => 'Menengah',
@@ -235,6 +246,10 @@ class LogisticRequestTest extends TestCase
 
     public function test_post_request_verifying()
     {
+        Storage::fake('photos');
+        Mail::fake();
+        Notification::fake();
+
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/verification', [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,
@@ -246,6 +261,10 @@ class LogisticRequestTest extends TestCase
 
     public function test_post_request_approval()
     {
+        Storage::fake('photos');
+        Mail::fake();
+        Notification::fake();
+
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/approval', [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,
@@ -257,6 +276,10 @@ class LogisticRequestTest extends TestCase
 
     public function test_post_request_final()
     {
+        Storage::fake('photos');
+        Mail::fake();
+        Notification::fake();
+
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/final', [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,
@@ -300,6 +323,8 @@ class LogisticRequestTest extends TestCase
 
     public function test_put_request_update_applicant_data()
     {
+        Storage::fake('photos');
+
         $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,
@@ -312,6 +337,8 @@ class LogisticRequestTest extends TestCase
 
     public function test_put_request_update_letter_data()
     {
+        Storage::fake('photos');
+
         $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
             'agency_id' => $this->applicant->id,
             'applicant_id' => $this->applicant->agency_id,

@@ -22,19 +22,19 @@ class FileUpload extends Model
     static function storeLetterFile($request)
     {
         $fileuploadid = null;
-        $path = Storage::disk('s3')->put(self::LETTER_PATH, $request->letter_file);
+        $path = Storage::put(self::LETTER_PATH, $request->file('letter_file'));
         $fileupload = self::create(['name' => $path]);
         $fileuploadid = $fileupload->id;
         $request->merge(['letter' => $fileuploadid]);
         $deleteotherletter = Letter::where('agency_id', '=', $request->agency_id)->where('applicant_id', '=', $request->applicant_id)->delete();
         $letter = Letter::create($request->all());
-        $letter->file_path = Storage::disk('s3')->url($fileupload->name);
+        $letter->file_path = Storage::url($fileupload->name);
         return $letter;
     }
 
     static function storeApplicantFile($request)
     {
-        $path = Storage::disk('s3')->put(self::APPLICANT_IDENTITY_PATH, $request->applicant_file);
+        $path = Storage::put(self::APPLICANT_IDENTITY_PATH, $request->file('applicant_file'));
         $fileUpload = self::create(['name' => $path]);
         $fileUploadId = $fileUpload->id;
         return $fileUpload;
@@ -42,7 +42,7 @@ class FileUpload extends Model
 
     static function uploadAcceptanceReportFile($request, $paramName, $index)
     {
-        $path = Storage::disk('s3')->put(self::ACCEPTANCE_REPORT_PATH, $request->file($paramName . $index));
+        $path = Storage::put(self::ACCEPTANCE_REPORT_PATH, $request->file($paramName . $index));
         $fileUpload = FileUpload::create(['name' => $path]);
         $evidence = AcceptanceReportEvidence::create([
             'acceptance_report_id' => $request->acceptance_report_id,

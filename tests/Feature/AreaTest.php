@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class AreaTest extends TestCase
 {
     use WithFaker;
-    // use RefreshDatabase;
+    use RefreshDatabase;
 
     public function setUp(): void
     {

@@ -44,8 +44,12 @@ return [
     'disks' => [
 
         'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_CLOUDFRONT_URL'),
         ],
 
         'public' => [
@@ -62,6 +66,12 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_CLOUDFRONT_URL'),
+        ],
+
+        'testing' => [
+            'driver' => 'local',
+            'root' => storage_path('framework/testing/disks/'),
+            'visibility' => 'public',
         ],
 
     ],

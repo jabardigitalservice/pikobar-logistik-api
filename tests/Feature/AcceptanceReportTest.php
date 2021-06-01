@@ -12,6 +12,7 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class AcceptanceReportTest extends TestCase
 {
@@ -45,6 +46,8 @@ class AcceptanceReportTest extends TestCase
 
     public function test_store_acceptance_report()
     {
+        Storage::fake('photos');
+
         $qty = rand(1000,10000);
         $qty_ok = $qty - rand(10, 100);
         $items[] = [
@@ -76,6 +79,7 @@ class AcceptanceReportTest extends TestCase
             'item_proof_length' => 1,
             'feedback' => $this->faker->text,
         ]);
+
         $response->assertSuccessful();
     }
 

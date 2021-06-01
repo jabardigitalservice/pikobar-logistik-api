@@ -77,7 +77,7 @@ class MasterFaskesController extends Controller
     {
         $path = null;
         if ($request->hasFile('permit_file')) {
-            $path = Storage::disk('s3')->put('registration/letter', $request->permit_file);
+            $path = Storage::put('registration/letter', $request->permit_file);
         }
         return $path;
     }
