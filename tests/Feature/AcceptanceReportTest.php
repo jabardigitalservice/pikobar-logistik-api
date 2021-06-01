@@ -32,7 +32,7 @@ class AcceptanceReportTest extends TestCase
         $this->applicant = factory(Applicant::class)->create(['agency_id' => $this->agency->id]);
     }
 
-    public function test_get_acceptance_report()
+    public function testGetAcceptanceReport()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report', [
             'search' => $this->faker->name,
@@ -44,7 +44,7 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_store_acceptance_report()
+    public function testStoreAcceptanceReport()
     {
         Storage::fake('photos');
 
@@ -83,7 +83,7 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_store_acceptance_report_fail_item_format()
+    public function testStoreAcceptanceReportFailItemFormat()
     {
         $qty = rand(1000,10000);
         $qty_ok = $qty - rand(10, 100);
@@ -119,13 +119,13 @@ class AcceptanceReportTest extends TestCase
         $response->assertStatus(Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
-    public function test_get_acceptance_report_by_id()
+    public function testGetAcceptanceReportById()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report/' . $this->agency->id);
         $response->assertSuccessful();
     }
 
-    public function test_get_acceptance_report_statistic()
+    public function testGetAcceptanceReportStatistic()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report-statistic', [
             'city_code' =>$this->faker->numerify('##.##')
@@ -133,7 +133,7 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_acceptance_report_evidence()
+    public function testGetAcceptanceReportEvidence()
     {
         $id = rand();
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report-evidence', [
@@ -142,7 +142,7 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_acceptance_report_detail()
+    public function testGetAcceptanceReportDetail()
     {
         $id = rand();
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/acceptance-report-detail', [
@@ -151,7 +151,7 @@ class AcceptanceReportTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_acceptance_report_realization_logistic_list()
+    public function testGetAcceptanceReportRealizationLogisticList()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-report/realization-item/' . $this->agency->id);
         $response->assertSuccessful();

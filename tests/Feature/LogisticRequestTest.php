@@ -35,19 +35,19 @@ class LogisticRequestTest extends TestCase
         $this->applicant = factory(Applicant::class)->create(['agency_id' => $this->agency->id]);
     }
 
-    public function test_get_logistic_request_no_auth()
+    public function testGetLogisticRequestNoAuth()
     {
         $response = $this->get('/api/v1/logistic-request');
         $response->assertUnauthorized();
     }
 
-    public function test_get_export_logistic_request()
+    public function testGetExportLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request/data/export');
         $response->assertSuccessful();
     }
 
-    public function test_get_logistic_request_list()
+    public function testGetLogisticRequestList()
     {
         $authKeys = factory(AuthKey::class)->create();
         $response = $this->json('GET', '/api/v1/logistic-request-list', [
@@ -57,14 +57,14 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_logistic_request_by_agency_id_no_auth()
+    public function testGetLogisticRequestByAgencyIdNoAuth()
     {
         $agencyId = $this->agency->id;
         $response = $this->get('/api/v1/logistic-request/' . $agencyId);
         $response->assertUnauthorized();
     }
 
-    public function test_get_unverified_phase_logistic_request()
+    public function testGetUnverifiedPhaseLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'verification_status' => ApplicantStatusEnum::not_verified(),
@@ -73,7 +73,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_recommendation_phase_logistic_request()
+    public function testGetRecommendationPhaseLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'verification_status' => ApplicantStatusEnum::verified(),
@@ -82,7 +82,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_realization_phase_logistic_request()
+    public function testGetRealizationPhaseLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'verification_status' => ApplicantStatusEnum::verified(),
@@ -92,7 +92,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_finalized_logistic_request()
+    public function testGetFinalizedLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'finalized_by' => 1
@@ -100,7 +100,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_rejected_logistic_request()
+    public function testGetRejectedLogisticRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'is_rejected' => 1
@@ -108,7 +108,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_logistic_request_filter()
+    public function testGetLogisticRequestFilter()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request', [
             'is_reference' => rand(0, 1),
@@ -128,7 +128,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_logistic_request_by_agency_id()
+    public function testGetLogisticRequestByAgencyId()
     {
         $agency = Agency::first();
         $agencyId = $agency->id;
@@ -136,7 +136,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_logistic_request_by_agency_id_not_admin()
+    public function testGetLogisticRequestByAgencyIdNotAdmin()
     {
         $notAdmin = factory(User::class)->create(['roles' => 'dinkeskota']);
 
@@ -146,7 +146,7 @@ class LogisticRequestTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_store_logistic_request_faskes()
+    public function testStoreLogisticRequestFaskes()
     {
         Storage::fake('photos');
         Mail::fake();
@@ -187,7 +187,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_store_logistic_request_non_faskes()
+    public function testStoreLogisticRequestNonFaskes()
     {
         Storage::fake('photos');
         Mail::fake();
@@ -228,7 +228,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_logistic_request_needs()
+    public function testLogisticRequestNeeds()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request/need/list', [
             'page' => 1,
@@ -238,13 +238,13 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_logistic_request_summary()
+    public function testLogisticRequestSummary()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request-summary');
         $response->assertSuccessful();
     }
 
-    public function test_post_request_verifying()
+    public function testPostRequestVerifying()
     {
         Storage::fake('photos');
         Mail::fake();
@@ -259,7 +259,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_post_request_approval()
+    public function testPostRequestApproval()
     {
         Storage::fake('photos');
         Mail::fake();
@@ -274,7 +274,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_post_request_final()
+    public function testPostRequestFinal()
     {
         Storage::fake('photos');
         Mail::fake();
@@ -289,7 +289,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_post_request_set_urgency()
+    public function testPostRequestSetUrgency()
     {
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/urgency', [
             'agency_id' => $this->applicant->id,
@@ -299,7 +299,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_post_request_return_status()
+    public function testPostRequestReturnStatus()
     {
         $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/return', [
             'agency_id' => $this->applicant->id,
@@ -310,7 +310,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_put_request_update_agency_data()
+    public function testPutRequestUpdateAgencyData()
     {
         $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
             'agency_id' => $this->applicant->id,
@@ -321,7 +321,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_put_request_update_applicant_data()
+    public function testPutRequestUpdateApplicantData()
     {
         Storage::fake('photos');
 
@@ -335,7 +335,7 @@ class LogisticRequestTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_put_request_update_letter_data()
+    public function testPutRequestUpdateLetterData()
     {
         Storage::fake('photos');
 

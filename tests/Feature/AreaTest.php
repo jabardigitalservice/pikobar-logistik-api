@@ -19,7 +19,7 @@ class AreaTest extends TestCase
         $this->admin = factory(User::class)->create();
     }
 
-    public function test_get_gities()
+    public function testGetCities()
     {
         $response = $this->json('GET', '/api/v1/landing-page-registration/areas/cities', [
             'city_code' => $this->faker->numerify('##.##')
@@ -27,7 +27,7 @@ class AreaTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_sub_area()
+    public function testGetSubArea()
     {
         $response = $this->json('GET', '/api/v1/landing-page-registration/areas/subarea', [
             'area_type' => 'subarea',
@@ -40,7 +40,7 @@ class AreaTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_sub_area_with_type_area_village()
+    public function testGetSubAreaWithTypeAreaVillage()
     {
         $response = $this->json('GET', '/api/v1/landing-page-registration/areas/subarea', [
             'area_type' => 'village',
@@ -53,7 +53,7 @@ class AreaTest extends TestCase
         $response->assertSuccessful();
     }
 
-    public function test_get_city_total_request()
+    public function testGetCityTotalRequest()
     {
         $response = $this->actingAs($this->admin, 'api')->json('GET', '/api/v1/logistic-request/cities/total-request', [
             'start_date' => date('Y-m-d H:i:s'),

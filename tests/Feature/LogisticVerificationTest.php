@@ -36,13 +36,13 @@ class LogisticVerificationTest extends TestCase
         $this->logisticVerification = factory(LogisticVerification::class)->create(['agency_id' => $this->agency->id]);
     }
 
-    public function test_verification_code_registration()
+    public function testVerificationCodeRegistration()
     {
         $response = $this->json('POST', '/api/v1/verification-registration', ['register_id' => $this->agency->id]);
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_verification_resend_code()
+    public function testVerificationResendCode()
     {
         $response = $this->json('POST', '/api/v1/verification-resend', [
             'register_id' => $this->agency->id,
@@ -51,14 +51,14 @@ class LogisticVerificationTest extends TestCase
         $response->assertStatus(Response::HTTP_OK);
     }
 
-    public function test_verification_code_registration_not_found()
+    public function testVerificationCodeRegistrationNotFound()
     {
         $agencyId = rand(10000, 99999);
         $response = $this->json('POST', '/api/v1/verification-registration', ['register_id' => $agencyId]);
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    public function test_verification_confirmation_fail()
+    public function testVerificationConfirmationFail()
     {
         $response = $this->json('POST', '/api/v1/verification-confirmation', [
             'register_id' => $this->agency->id,
@@ -71,7 +71,7 @@ class LogisticVerificationTest extends TestCase
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
-    public function test_verification_confirmation_success()
+    public function testVerificationConfirmationSuccess()
     {
         $token = $this->logisticVerification->token;
         $response = $this->json('POST', '/api/v1/verification-confirmation', [
