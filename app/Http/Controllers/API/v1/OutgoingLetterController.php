@@ -73,14 +73,9 @@ class OutgoingLetterController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $data = [];
         $limit = $request->input('limit', 10);
-        try {
-            $outgoingLetter = OutgoingLetter::find($id);
-            $data = [ 'outgoing_letter' => $outgoingLetter ];
-        } catch (\Exception $exception) {
-            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
-        }
+        $outgoingLetter = OutgoingLetter::find($id);
+        $data = [ 'outgoing_letter' => $outgoingLetter ];
         return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
