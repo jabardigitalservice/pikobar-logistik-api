@@ -111,31 +111,6 @@ Route::namespace('API\v1')->prefix('v1')->group(function () {
         Route::get('/products-total-request', 'ProductsController@productRequest');
         Route::get('/products-top-request', 'ProductsController@productTopRequest');
 
-        // TRANSACTIONS
-        Route::prefix('/transactions')->group(function() {
-            Route::get('/summary', 'TransactionController@summary');
-            Route::get('/export', 'TransactionController@export');
-            Route::get('/{id}', 'TransactionController@show');
-            Route::put('/{id}', 'TransactionController@update');
-            Route::delete('/{id}', 'TransactionController@destroy');
-            Route::get('/', 'TransactionController@index');
-            Route::post('/', 'TransactionController@store');
-        });
-
-        Route::prefix('/recipients')->group(function() {
-          Route::get('/', 'RecipientController@index');
-          Route::get('/rdt-result-summary', 'RecipientController@summary_rdt_result');
-          Route::get('/summary', 'RecipientController@summary');
-          // need to be last so /summary wont be treated as city_code=summary
-          Route::get('/{city_code}', 'RecipientController@show');
-        });
-
-        Route::prefix('/recipients-faskes')->group(function() {
-          Route::get('/summary', 'RecipientFaskesController@summary');
-          Route::get('/export', 'RecipientFaskesController@export');
-          Route::get('/', 'RecipientFaskesController@index');
-        });
-
         Route::get('/logistic-request', 'LogisticRequestController@index');
         Route::get('/logistic-request/{id}', 'LogisticRequestController@show');
         Route::post('/logistic-request/verification', 'LogisticRequestController@changeStatus')->name('verification');
