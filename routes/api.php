@@ -187,7 +187,6 @@ Route::namespace('API\v1')->prefix('v1')->group(function () {
 
         //Incoming Letter Management
         Route::get('/incoming-letter', 'IncomingLetterController@index');
-        Route::get('/incoming-letter/{id}', 'IncomingLetterController@show');
 
         //Dashboard
         Route::get('/faskes-type-total-request', 'MasterFaskesTypeController@masterFaskesTypeRequest');

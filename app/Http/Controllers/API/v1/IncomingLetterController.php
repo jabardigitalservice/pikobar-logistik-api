@@ -18,17 +18,4 @@ class IncomingLetterController extends Controller
         $data = IncomingLetter::getIncomingLetterList($request);
         return response()->format(200, 'success', $data);
     }
-    
-    /**
-     * Display a listing of the resource.
-     * 
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Request $request, $id)
-    {
-        $data = IncomingLetter::showIncomingLetterDetail($request, $id);
-        return response()->format(200, 'success', $data);
-    }
 }
