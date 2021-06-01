@@ -342,6 +342,18 @@ class LogisticRequestTest extends TestCase
         ]);
         $response->assertSuccessful();
     }
+
+    public function testPostRequestReturnStatusFromVerificationRejectedPhase()
+    {
+        $response = $this->actingAs($this->admin, 'api')->json('POST', '/api/v1/logistic-request/return', [
+            'agency_id' => $this->applicant->id,
+            'applicant_id' => $this->applicant->agency_id,
+            'step' => 'ditolak verifikasi',
+            'url' => 'http:://localhost/#',
+        ]);
+        $response->assertSuccessful();
+    }
+
     public function testPutRequestUpdateAgencyData()
     {
         $response = $this->actingAs($this->admin, 'api')->json('PUT', '/api/v1/logistic-request/' . $this->applicant->agency_id, [
