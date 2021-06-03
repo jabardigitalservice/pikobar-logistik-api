@@ -15,22 +15,17 @@ class Letter extends Model
         'letter'
     ];
 
-    public function agency()
-    {
-        return $this->belongsToOne('App\Agency', 'id', 'agency_id');
-    }
-
     public function getLetterAttribute($value)
     {
         $data = FileUpload::find($value);
+        $letter = '';
+        return $letter;
         if (isset($data->name)) {
+            $letter = $data->name;
             if (substr($data->name, 0, 12) === 'registration') {
-                return config('aws.url') . $data->name;
-            } else {
-                return $data->name;
+                $letter = config('aws.url') . $data->name;
             }
-        } else {
-            return '';
         }
+        return $letter;
     }
 }
