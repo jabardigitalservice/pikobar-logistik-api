@@ -27,17 +27,6 @@ class Usage
         return static::$client;
     }
 
-    static function returnData($res)
-    {
-        if ($res->getStatusCode() != Response::HTTP_OK) {
-            error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
-            return [ response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error'), null ];
-        } else {
-            // Extract the data
-            return [ null, json_decode($res->getBody())->data ];
-        }
-    }
-
     /**
      * Request logistic stock data obtained from PT POS
      *
@@ -59,7 +48,7 @@ class Usage
         ]);
         if ($res->getStatusCode() != Response::HTTP_OK) {
             error_log("Error: WMS Jabar API returning status code ".$res->getStatusCode());
-            return [ response()->Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error', null ];
+            return [ response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error', null) ];
         } else {
             return PoslogProduct::isDashboardAPI($baseApi) ? json_decode($res->getBody())->data : json_decode($res->getBody())->msg;
         }
@@ -88,7 +77,7 @@ class Usage
 
         if ($res->getStatusCode() != Response::HTTP_OK) {
             error_log("Error: WMS Jabar API returning status code ".$res->getStatusCode());
-            return [ response()->Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error'), null ];
+            return [ response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error'), null ];
         } else {
             return json_decode($res->getBody())->msg;
         }
