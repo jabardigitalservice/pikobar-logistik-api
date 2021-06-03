@@ -7,6 +7,7 @@ use App\Usage;
 use App\Product;
 use App\PoslogProduct;
 use App\SyncApiSchedules;
+use Illuminate\Http\Response;
 
 class StockController extends Controller
 {
@@ -21,7 +22,7 @@ class StockController extends Controller
         $result = $this->getParam($request);
         $this->syncDatabase($result['field_poslog'], $result['field_poslog']);
         $data = Usage::getPoslogItem($result['field_poslog'], $result['value_poslog'], $result['material_name']);
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     /**
@@ -33,7 +34,7 @@ class StockController extends Controller
     public function productUnitList($id)
     {
         $data = Usage::getPoslogItemUnit('material_id', $id, false);
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     public function getParam($request)

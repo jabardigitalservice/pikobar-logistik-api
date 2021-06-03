@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Http\Response;
 use JWTAuth;
 
 class AuthKey
@@ -25,18 +26,18 @@ class AuthKey
             if ($JWTtoken) {
                 try {
                     if (!$user = JWTAuth::parseToken()->authenticate()) {
-                        $response = response()->format(404, 'user_not_found');
+                        $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, 'user_not_found');
                     }
                     $request->merge(array("authenticated_user_id" => $user->id));
                     $response = $next($request);
                 } catch (TokenExpiredException $e) {
                     $token = $request->token;
                     $refreshedToken = JWTAuth::refresh($token);
-                    $response = response()->format(200, "token_expired", ["new_token" => $refreshedToken]);
+                    $response = response()->format(Response::HTTP_OK, "token_expired", ["new_token" => $refreshedToken]);
                 } catch (JWTException $e) {
-                    $response = response()->format(422, $e->getMessage());
+                    $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $e->getMessage());
                 } catch (Exception $exception) {
-                    $response = response()->format(422, 'token_failure');
+                    $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, 'token_failure');
                 }
             }
         }

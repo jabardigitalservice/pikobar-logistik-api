@@ -12,6 +12,7 @@ use JWTAuth;
 use DB;
 use App\PoslogProduct;
 use App\SohLocation;
+use Illuminate\Http\Response;
 
 class Usage
 {
@@ -28,9 +29,9 @@ class Usage
 
     static function returnData($res)
     {
-        if ($res->getStatusCode() != 200) {
+        if ($res->getStatusCode() != Response::HTTP_OK) {
             error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
+            return [ response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error'), null ];
         } else {
             // Extract the data
             return [ null, json_decode($res->getBody())->data ];
@@ -56,9 +57,9 @@ class Usage
             ],
             'body' => $param
         ]);
-        if ($res->getStatusCode() != 200) {
+        if ($res->getStatusCode() != Response::HTTP_OK) {
             error_log("Error: WMS Jabar API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
+            return [ response()->Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error', null ];
         } else {
             return PoslogProduct::isDashboardAPI($baseApi) ? json_decode($res->getBody())->data : json_decode($res->getBody())->msg;
         }
@@ -85,9 +86,9 @@ class Usage
             'body' => $param
         ]);
 
-        if ($res->getStatusCode() != 200) {
+        if ($res->getStatusCode() != Response::HTTP_OK) {
             error_log("Error: WMS Jabar API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
+            return [ response()->Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error'), null ];
         } else {
             return json_decode($res->getBody())->msg;
         }
@@ -109,7 +110,7 @@ class Usage
                 }
             })->orderBy('material_name','asc')->orderBy('soh_location','asc')->orderBy('stock_ok','desc')->get();
         } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
         return $poslogProduct;
     }

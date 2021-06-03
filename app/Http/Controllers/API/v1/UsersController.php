@@ -23,16 +23,16 @@ class UsersController extends ApiController
         try {
             // attempt to verify the credentials and create a token for the user
             if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->format(401, 'invalid_credentials');
+                return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, 'invalid_credentials');
             }
         } catch (JWTException $e) {
             // something went wrong whilst attempting to encode the token
-            return response()->format(500, 'could_not_create_token');
+            return response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'could_not_create_token');
         }
         $user = JWTAuth::user();
         $status = 'success';
         // all good so return the token
-        return response()->format(200, true, compact('token', 'user'));
+        return response()->format(Response::HTTP_OK, true, compact('token', 'user'));
     }
 
     public function register(Request $request)
@@ -49,7 +49,7 @@ class UsersController extends ApiController
             'phase' => 'required',
         ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $user = User::create([
                 'username' => $request->username,
                 'email' => $request->email,
@@ -61,7 +61,7 @@ class UsersController extends ApiController
                 'name_district_city' => $request->name_district_city,
                 'phase' => $request->phase,
             ]);
-            $response = response()->format(200, true, [
+            $response = response()->format(Response::HTTP_OK, true, [
                 'token' => JWTAuth::fromUser($user),
                 'user' => $user,
             ]);
@@ -72,7 +72,7 @@ class UsersController extends ApiController
     public function me(Request $request)
     {
         $currentUser = JWTAuth::user();
-        return response()->format(200, true, $currentUser);
+        return response()->format(Response::HTTP_OK, true, $currentUser);
     }
 
     public function changePassword(Request $request)
@@ -81,7 +81,7 @@ class UsersController extends ApiController
         $response = $this->authenticate($request);
         if ($response->getStatusCode() === Response::HTTP_OK) {
             $update = User::where('id', JWTAuth::user()->id)->update(['password' => bcrypt($request->password_new)]);
-            return response()->format(200, true, $update);
+            return response()->format(Response::HTTP_OK, true, $update);
         }
         return $response;
     }

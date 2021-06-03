@@ -7,18 +7,19 @@ use App\Validation;
 use App\Http\Controllers\Controller;
 use App\Notifications\ChangeStatusNotification;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ChangeStatusNotifyController extends Controller
 {
     public function sendNotification(Request $request)
     {
-        $param = [ 
+        $param = [
             'id' => 'required',
             'url' => 'required',
             'phase' => 'required',
         ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $notify = [];
             $users = User::where('phase', $request->phase)->where('handphone', '!=', '')->get();
             $requiredData = [
@@ -34,7 +35,7 @@ class ChangeStatusNotifyController extends Controller
                 'users' => $users,
                 'notify' => $notify,
             ];
-            $response = response()->format(200, 'success', $responseData);
+            $response = response()->format(Response::HTTP_OK, 'success', $responseData);
         }
         return $response;
     }

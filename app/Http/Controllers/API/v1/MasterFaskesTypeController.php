@@ -25,10 +25,10 @@ class MasterFaskesTypeController extends Controller
                 }
             })->get();
         } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
 
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     public function masterFaskesTypeRequest(Request $request)

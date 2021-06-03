@@ -12,6 +12,6 @@ class AcceptanceReportEvidenceController extends Controller
     public function index(Request $request)
     {
         $acceptanceReportEvidence = AcceptanceReportEvidence::where('acceptance_report_id', $request->input('acceptance_report_id'))->get();
-        return response()->format(200, 'success', $acceptanceReportEvidence);
+        return response()->format(Response::HTTP_OK, 'success', $acceptanceReportEvidence);
     }
 }

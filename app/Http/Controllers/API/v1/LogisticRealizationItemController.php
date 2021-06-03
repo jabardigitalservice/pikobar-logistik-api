@@ -10,6 +10,7 @@ use DB;
 use JWTAuth;
 use App\Applicant;
 use App\PoslogProduct;
+use Illuminate\Http\Response;
 use Log;
 
 class LogisticRealizationItemController extends Controller
@@ -26,7 +27,7 @@ class LogisticRealizationItemController extends Controller
         $params = $cleansingData['param'];
         $request = $cleansingData['request'];
         $response = Validation::validate($request, $params);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             if ($this->isApplicantExists($request, 'store')) {
                 try {
                     $model = new LogisticRealizationItems();
@@ -41,9 +42,9 @@ class LogisticRealizationItemController extends Controller
                         $findOne->deleted_at = date('Y-m-d H:i:s');
                         $findOne->save();
                     }
-                    $response = response()->format(200, 'success', $model);
+                    $response = response()->format(Response::HTTP_OK, 'success', $model);
                 } catch (\Exception $exception) { //Return Error Exception
-                    $response = response()->format(400, $exception->getMessage());
+                    $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
                 }
             }
         }
@@ -54,8 +55,8 @@ class LogisticRealizationItemController extends Controller
     public function add(Request $request)
     {
         $params = [
-            'agency_id' => 'numeric', 
-            'applicant_id' => 'numeric', 
+            'agency_id' => 'numeric',
+            'applicant_id' => 'numeric',
             'product_id' => 'string',
             'usage' => 'string',
             'priority' => 'string',
@@ -64,13 +65,13 @@ class LogisticRealizationItemController extends Controller
         $cleansingData = $this->cleansingData($request, $params);
         $params = $cleansingData['param'];
         $request = $cleansingData['request'];
-        $response = Validation::validate($request, $params);        
-        if ($response->getStatusCode() === 200) {
+        $response = Validation::validate($request, $params);
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $applicant = Applicant::select('id')->where('id', $request->applicant_id)->where('agency_id', $request->agency_id)->first();
             //Get Material from PosLog by Id
             $request = $this->getPosLogData($request);
             $realization = $this->realizationStore($request);
-            $response = response()->format(200, 'success');
+            $response = response()->format(Response::HTTP_OK, 'success');
         }
         return $response;
     }
@@ -85,11 +86,11 @@ class LogisticRealizationItemController extends Controller
         $params = [
             'agency_id' => 'required'
         ];
-        $response = Validation::validate($request, $params);        
-        if ($response->getStatusCode() === 200) {
+        $response = Validation::validate($request, $params);
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $limit = $request->input('limit', 3);
             $data = LogisticRealizationItems::getList($request);
-            $response = response()->format(200, 'success', $data);
+            $response = response()->format(Response::HTTP_OK, 'success', $data);
         }
         return $response;
     }
@@ -109,26 +110,26 @@ class LogisticRealizationItemController extends Controller
         $cleansingData = $this->cleansingData($request, $params);
         $params = $cleansingData['param'];
         $request = $cleansingData['request'];
-        $response = Validation::validate($request, $params);        
-        if ($response->getStatusCode() === 200) {
+        $response = Validation::validate($request, $params);
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $response = $this->isValidStatus($request);
-            if ($response->getStatusCode() === 200) {
+            if ($response->getStatusCode() === Response::HTTP_OK) {
                 DB::beginTransaction();
                 try {
                     $request['applicant_id'] = $request->input('applicant_id', $request->input('agency_id'));
-        
+
                     //Get Material from PosLog by Id
                     $request = $this->getPosLogData($request);
                     $realization = $this->realizationUpdate($request, $id);
 
-                    $data = array( 
+                    $data = array(
                         'realization' => $realization
                     );
                     DB::commit();
-                    $response = response()->format(200, 'success', $data);
+                    $response = response()->format(Response::HTTP_OK, 'success', $data);
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    $response = response()->format(400, $exception->getMessage());
+                    $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
                 }
             }
         }
@@ -149,24 +150,24 @@ class LogisticRealizationItemController extends Controller
     // Utilities Function Below Here
 
     public function realizationStore($request)
-    {   
+    {
         $store_type = $this->setStoreType($request);
         return LogisticRealizationItems::storeData($store_type);
     }
 
     public function realizationUpdate($request, $id)
-    { 
+    {
         $findOne = LogisticRealizationItems::find($id);
-        if ($findOne) {                
+        if ($findOne) {
             //updating latest log realization record
             if ($request->input('store_type') === 'recommendation') {
-                $store_type = [  
+                $store_type = [
                     'agency_id' => $request->input('agency_id'),
                     'applicant_id' => $request->input('applicant_id'),
-                    'product_id' => $request->input('product_id'), 
-                    'product_name' => $request->input('product_name'), 
-                    'realization_unit' => $request->input('recommendation_unit'), 
-                    'material_group' => $request->input('material_group'), 
+                    'product_id' => $request->input('product_id'),
+                    'product_name' => $request->input('product_name'),
+                    'realization_unit' => $request->input('recommendation_unit'),
+                    'material_group' => $request->input('material_group'),
                     'realization_quantity' => $request->input('recommendation_quantity'),
                     'realization_date' => $request->input('recommendation_date'),
                     'status' => $request->input('status'),
@@ -185,7 +186,7 @@ class LogisticRealizationItemController extends Controller
                 $store_type['final_at'] = date('Y-m-d H:i:s');
             }
 
-            $findOne->fill($store_type);  
+            $findOne->fill($store_type);
             $findOne->save();
         }
         return $findOne;
@@ -217,12 +218,12 @@ class LogisticRealizationItemController extends Controller
         }
         $request = LogisticRealizationItems::setValue($request, $findOne);
         $result = [
-            'request' => $request, 
+            'request' => $request,
             'findOne' => $findOne
         ];
         return $result;
     }
-    
+
     public function isApplicantExists($request, $method)
     {
         $applicantCheck = Applicant::where('verification_status', '=', Applicant::STATUS_VERIFIED);
@@ -232,7 +233,7 @@ class LogisticRealizationItemController extends Controller
     }
 
     public function setStoreType($request)
-    {        
+    {
         $store_type['need_id'] = $request->input('need_id');
         $store_type['agency_id'] = $request->input('agency_id');
         $store_type['applicant_id'] = $request->input('applicant_id');
@@ -246,14 +247,14 @@ class LogisticRealizationItemController extends Controller
         $store_type['final_by'] = JWTAuth::user()->id;
         $store_type['final_at'] = date('Y-m-d H:i:s');
         if ($request->input('store_type') === 'recommendation') {
-            $store_type = [  
-                'need_id' => $request->input('need_id'), 
-                'agency_id' => $request->input('agency_id'), 
-                'applicant_id' => $request->input('applicant_id'), 
-                'product_id' => $request->input('product_id'), 
-                'product_name' => $request->input('product_name'), 
-                'realization_unit' => $request->input('recommendation_unit'), 
-                'material_group' => $request->input('material_group'), 
+            $store_type = [
+                'need_id' => $request->input('need_id'),
+                'agency_id' => $request->input('agency_id'),
+                'applicant_id' => $request->input('applicant_id'),
+                'product_id' => $request->input('product_id'),
+                'product_name' => $request->input('product_name'),
+                'realization_unit' => $request->input('recommendation_unit'),
+                'material_group' => $request->input('material_group'),
                 'realization_quantity' => $request->input('recommendation_quantity'),
                 'realization_date' => $request->input('recommendation_date'),
                 'status' => $request->input('status'),
@@ -264,7 +265,7 @@ class LogisticRealizationItemController extends Controller
         }
         return $store_type;
     }
-    
+
     public function cleansingData($request, $param)
     {
         $extra = [
@@ -296,9 +297,9 @@ class LogisticRealizationItemController extends Controller
             unset($request['realization_date']);
             unset($request['realization_quantity']);
         }
-        
+
         $result = [
-            'request' => $request, 
+            'request' => $request,
             'param' => $param
         ];
         return $result;
@@ -311,7 +312,7 @@ class LogisticRealizationItemController extends Controller
 
     public function isValidStatus($request)
     {
-        $response = response()->format(200, 'success');
+        $response = response()->format(Response::HTTP_OK, 'success');
         if (!in_array($request->status, LogisticRealizationItems::STATUS)) {
             $response = response()->json(['status' => 'fail', 'message' => 'verification_status_value_is_not_accepted']);
         }

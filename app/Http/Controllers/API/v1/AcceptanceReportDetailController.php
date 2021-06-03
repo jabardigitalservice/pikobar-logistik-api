@@ -13,6 +13,6 @@ class AcceptanceReportDetailController extends Controller
     {
         $limit = $request->input('limit', 3);
         $acceptanceReport = AcceptanceReportDetail::where('acceptance_report_id', $request->input('acceptance_report_id'))->paginate($limit);
-        return response()->format(200, 'success', $acceptanceReport);
+        return response()->format(Response::HTTP_OK, 'success', $acceptanceReport);
     }
 }

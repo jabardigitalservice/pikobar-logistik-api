@@ -18,7 +18,7 @@ class RequestLetterController extends Controller
         $data = [];
         $param = [ 'outgoing_letter_id' => 'required' ];
         $response = Validation::validate($request, $param);
-        if ($response->getStatusCode() === 200) {
+        if ($response->getStatusCode() === Response::HTTP_OK) {
             $limit = $request->input('limit', 10);
             $defaultField = $this->defaultField();
             $defaultField[] = 'applicants.verification_status';
@@ -38,7 +38,7 @@ class RequestLetterController extends Controller
             foreach ($data as $key => $val) {
                 $data[$key] = $this->getRealizationData($val);
             }
-            $response = response()->format(200, 'success', $data);
+            $response = response()->format(Response::HTTP_OK, 'success', $data);
         }
         return $response;
     }
@@ -56,7 +56,7 @@ class RequestLetterController extends Controller
             $data[] = $this->getRealizationData($val);
         }
 
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     public function store(Request $request)
@@ -74,10 +74,10 @@ class RequestLetterController extends Controller
                     'request_letter' => $request_letter,
                 );
                 DB::commit();
-                $response = response()->format(200, 'success', $response);
+                $response = response()->format(Response::HTTP_OK, 'success', $response);
             } catch (\Exception $exception) {
                 DB::rollBack();
-                $response = response()->format(400, $exception->getMessage());
+                $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
             }
         }
         return $response;
@@ -92,9 +92,9 @@ class RequestLetterController extends Controller
                 $data = RequestLetter::find($id);
                 $data->applicant_id = $request->applicant_id;
                 $data->save();
-                $response = response()->format(200, 'success');
+                $response = response()->format(Response::HTTP_OK, 'success');
             } catch (\Exception $exception) {
-                $response = response()->format(400, $exception->getMessage());
+                $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
             }
         }
         return $response;
@@ -108,9 +108,9 @@ class RequestLetterController extends Controller
             DB::commit();
         } catch (\Exception $exception) {
             DB::rollBack();
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
-        return response()->format(200, 'success', ['id' => $id]);
+        return response()->format(Response::HTTP_OK, 'success', ['id' => $id]);
     }
 
     /**
@@ -142,10 +142,10 @@ class RequestLetterController extends Controller
             //filterization
             $data = $this->checkAlreadyPicked($list, $request_letter_ignore);
         } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
 
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 
     /**

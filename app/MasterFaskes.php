@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Response;
 
 class MasterFaskes extends Model
 {
@@ -99,7 +100,7 @@ class MasterFaskes extends Model
             $model->non_medical = 1;
             $model->save();
         } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
         return $model;
     }

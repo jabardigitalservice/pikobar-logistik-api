@@ -18,6 +18,7 @@ use App\Validation;
 use Illuminate\Support\Facades\DB;
 use App\Http\Resources\LogisticRequestResource;
 use App\WmsJabar;
+use Illuminate\Http\Response;
 
 class LogisticRequest extends Model
 {
@@ -83,10 +84,10 @@ class LogisticRequest extends Model
             $email = self::sendEmailNotification($responseData['agency']->id, Applicant::STATUS_NOT_VERIFIED);
             $whatsapp = self::sendWhatsappNotification($request, 'surat');
             DB::commit();
-            $response = response()->format(200, 'success', new LogisticRequestResource($responseData));
+            $response = response()->format(Response::HTTP_OK, 'success', new LogisticRequestResource($responseData));
         } catch (\Exception $exception) {
             DB::rollBack();
-            $response = response()->format(400, $exception->getMessage(), $responseData);
+            $response = response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage(), $responseData);
         }
         return $response;
     }
@@ -127,7 +128,7 @@ class LogisticRequest extends Model
             }])->findOrFail($agencyId);
             Mail::to($agency->applicant['email'])->send(new LogisticEmailNotification($agency, $status));
         } catch (\Exception $exception) {
-            return response()->format(400, $exception->getMessage());
+            return response()->format(Response::HTTP_UNPROCESSABLE_ENTITY, $exception->getMessage());
         }
     }
 
@@ -182,7 +183,7 @@ class LogisticRequest extends Model
         unset($request['id']);
         $model->fill($request->all());
         $model->save();
-        return response()->format(200, 'success');
+        return response()->format(Response::HTTP_OK, 'success');
     }
 
     static function changeStatus(Request $request, $processType, $dataUpdate)
@@ -211,7 +212,7 @@ class LogisticRequest extends Model
         if ($request->verification_status !== Applicant::STATUS_REJECTED) {
             $whatsapp = self::sendEmailNotification($request, 'rekomendasi');
         }
-        $response = response()->format(200, 'success', $applicant);
+        $response = response()->format(Response::HTTP_OK, 'success', $applicant);
         return $response;
     }
 
@@ -261,7 +262,7 @@ class LogisticRequest extends Model
                 $request['agency_id'] = $applicant->agency_id;
                 $whatsapp = self::sendWhatsappNotification($request, $param['phase']);
             }
-            $response = response()->format(200, 'success', $applicant);
+            $response = response()->format(Response::HTTP_OK, 'success', $applicant);
         }
         return $response;
     }

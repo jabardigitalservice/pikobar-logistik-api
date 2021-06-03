@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\IncomingLetter;
+use Illuminate\Http\Response;
 
 class IncomingLetterController extends Controller
 {
@@ -16,6 +17,6 @@ class IncomingLetterController extends Controller
     public function index(Request $request)
     {
         $data = IncomingLetter::getIncomingLetterList($request);
-        return response()->format(200, 'success', $data);
+        return response()->format(Response::HTTP_OK, 'success', $data);
     }
 }
