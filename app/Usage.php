@@ -26,66 +26,6 @@ class Usage
         return static::$client;
     }
 
-    /**
-     * Request authorization token from pelaporan API
-     *
-     * @return Array [ error, result_array ]
-     */
-    static function getPelaporanAuthToken()
-    {
-        // login first
-        $login_url = config('pelaporan.url') . '/api/login';
-        $res = static::getClient()->post($login_url, [
-            'json'   => [
-                'username' => config('pelaporan.username'),
-                'password' => config('pelaporan.password'),
-            ],
-            'verify' => false,
-        ]);
-        if ($res->getStatusCode() != 200) {
-            return [ response()->format(500, 'Internal server error'), null ];
-        }
-        return json_decode($res->getBody())->data->token;
-    }
-
-    /**
-     * Request used rdt stock data from pelaporan dinkes API
-     *
-     * @return Array [ error, result_array ]
-     */
-    static function getPelaporanCitySummary()
-    {
-        // retrieving summary by cities endpont
-        $token = static::getPelaporanAuthToken();
-        $url = config('pelaporan.url') . '/api/rdt/summary-by-cities';
-        $res = static::getClient()->get($url, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => "Bearer $token",
-            ],
-        ]);
-
-        return self::returnData($res);
-    }
-
-    /**
-     * Request used Pelaporan Integrate
-     *
-     * @return Array [ error, result_array ]
-     */
-    static function getPelaporanData($url)
-    {
-        $token = static::getPelaporanAuthToken();
-        $res = static::getClient()->get($url, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => "Bearer $token",
-            ],
-        ]);
-
-        return self::returnData($res);
-    }
-
     static function returnData($res)
     {
         if ($res->getStatusCode() != 200) {
@@ -94,48 +34,6 @@ class Usage
         } else {
             // Extract the data
             return [ null, json_decode($res->getBody())->data ];
-        }
-    }
-
-    /**
-     * Request used rdt stock data (grouped by faskes, filter only from the same
-     * kob/kota) from pelaporan dinkes API
-     *
-     * @return Array [ error, result_array ]
-     */
-    static function getPelaporanFaskesSummary()
-    {
-        // retrieving summary by cities endpont
-        $token = static::getPelaporanAuthToken();
-        $district_code = JWTAuth::user()->code_district_city;
-        $url  = config('pelaporan.url') . '/api/rdt/faskes-summary-by-cities';
-        $url .= "?district_code=$district_code";
-
-        $res = static::getClient()->get($url, [
-            'verify' => false,
-            'headers' => [
-                'Authorization' => "Bearer $token",
-            ],
-        ]);
-
-        if ($res->getStatusCode() != 200) {
-            error_log("Error: pelaporan API returning status code ".$res->getStatusCode());
-            return [ response()->format(500, 'Internal server error'), null ];
-        } else {
-            // Extract the data
-            $raw_list = json_decode($res->getBody())->data;
-
-            // format data
-            $faskes_list = [];
-            foreach ($raw_list as $row) {
-                $faskes_list[] = [
-                    "faskes_name" => $row->_id,
-                    "total_stock" => null,
-                    "total_used" => $row->total,
-                ];
-            }
-
-            return [ null,  $faskes_list ];
         }
     }
 
