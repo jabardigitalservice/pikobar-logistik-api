@@ -34,8 +34,8 @@ class Usage
      */
     static function getLogisticStock($param, $api, $baseApi)
     {
-        $apiKey = PoslogProduct::isDashboardAPI($baseApi) ? config('dashboardexecutive.key') : config('wmsjabar.key');
-        $apiLink = PoslogProduct::isDashboardAPI($baseApi) ? config('dashboardexecutive.url') : config('wmsjabar.url');
+        $apiKey = config('wmsjabar.key');
+        $apiLink = config('wmsjabar.url');
         $apiFunction = $api ? $api : '/api/soh_fmaterialgroup';
         $url = $apiLink . $apiFunction;
         $res = static::getClient()->get($url, [
@@ -50,7 +50,7 @@ class Usage
             error_log("Error: WMS Jabar API returning status code ".$res->getStatusCode());
             return [ response()->format(Response::HTTP_INTERNAL_SERVER_ERROR, 'Internal server error', null) ];
         } else {
-            return PoslogProduct::isDashboardAPI($baseApi) ? json_decode($res->getBody())->data : json_decode($res->getBody())->msg;
+            return json_decode($res->getBody())->msg;
         }
     }
 
@@ -121,17 +121,6 @@ class Usage
             ];
         }
         return $dataFinal;
-    }
-
-    static function syncDashboard()
-    {
-        $data = [];
-        $api = '/master/inbound_detail?search=gsheet';
-        $param = '';
-        $baseApi = PoslogProduct::API_DASHBOARD;
-        $materials = static::getLogisticStock($param, $api, $baseApi);
-        $data = static::setPoslogProduct($materials, $baseApi, $data);
-        PoslogProduct::updatingPoslogProduct($data, $baseApi);
     }
 
     static function syncWmsJabar()

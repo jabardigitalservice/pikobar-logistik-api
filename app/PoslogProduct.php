@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class PoslogProduct extends Model
 {
     const API_POSLOG = 'WMS_JABAR_BASE_URL';
-    const API_DASHBOARD = 'DASHBOARD_PIKOBAR_API_BASE_URL';
     const DEFAULT_UOM = 'PCS';
     const DEFAULT_STOCK = 0;
 
@@ -45,11 +44,6 @@ class PoslogProduct extends Model
         return $value ? number_format($value, 0, ",", ".") : self::DEFAULT_STOCK;
     }
 
-    static function isDashboardAPI($baseApi)
-    {
-        return ($baseApi === self::API_DASHBOARD) ?? false;
-    }
-
     static function updatingPoslogProduct($data, $baseApi)
     {
         $data = array_values($data);
@@ -65,7 +59,7 @@ class PoslogProduct extends Model
     {
         $key = Usage::getKeyIndex($material);
         $stockOk = Usage::getStockOk($material);
-        if ($stockOk > 0 && self::isFromDashboardAPI($material, $baseApi)) {
+        if ($stockOk > 0) {
             $data[$key] = [
                 'material_id' => $material->material_id,
                 'material_name' => $material->material_name,
@@ -96,28 +90,12 @@ class PoslogProduct extends Model
     {
         try {
             $updateTime = self::where(function ($query) use($field, $value, $baseApi) {
-                if (self::isDashboardAPI($baseApi)) {
-                    $query->where('soh_location', '=', 'GUDANG LABKES');
-                    if ($value) {
-                        $query->where($field, '=', $value);
-                    }
-                }
                 $query->where('source_data', '=', $baseApi);
             })->orderBy('updated_at','desc')->value('updated_at');
         } catch (\Exception $exception) {
             $updateTime = null;
         }
         return $updateTime;
-    }
-
-    static function isGudangLabkes($material, $baseApi)
-    {
-        return ($material->inbound[0]->whs_name === 'GUDANG LABKES') ?? false;
-    }
-
-    static function isFromDashboardAPI($material, $baseApi)
-    {
-        return self::isDashboardAPI($baseApi) ? self::isGudangLabkes($material, $baseApi) : true;
     }
 
     static function syncSohLocation()

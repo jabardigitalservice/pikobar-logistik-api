@@ -30,13 +30,6 @@ class CreateSyncApiScheduleTable extends Migration
                 'hour' => 0,
                 'minute' => 5,
                 'second' => 0,
-            ],
-            [
-                'api' => 'DASHBOARD_PIKOBAR_API_BASE_URL',
-                'type' => 'interval',
-                'hour' => 1,
-                'minute' => 0,
-                'second' => 0,
             ]
         ];
         DB::table('sync_api_schedules')->insert($dataSyncAPISchedules);
